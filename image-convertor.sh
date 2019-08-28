@@ -8,6 +8,16 @@ INPUT_IMAGES_FILE_PATH=$@
 echo "#############################################################"
 echo $INPUT_IMAGES_FILE_PATH
 echo "#############################################################"
+
+# Convert all images to .png
+mogrify -format jpg $INPUT_IMAGES_FILE_PATH'*.png'
+
+# remove all png
+sudo rm -rf -d $INPUT_IMAGES_FILE_PATH*.png
+
+# Resize 50%
+mogrify -resize 50% $INPUT_IMAGES_FILE_PATH'*.jpg'
+
 # Compress the PNG files
 find $INPUT_IMAGES_FILE_PATH -regex '.*\.\(PNG\|png\)' -exec pngquant --force --quality=30-60 --skip-if-larger --verbose \{} --output \{} \;
 
@@ -18,6 +28,3 @@ find $INPUT_IMAGES_FILE_PATH -regex '.*\.\(PNG\|png\)' -exec pngquant --force --
 # -p = preserve the modification time
 # -t = print total after processing the files
 jpegoptim $INPUT_IMAGES_FILE_PATH* -m35 -o -p -t
-
-# Q=find $INPUT_IMAGES_FILE_PATH -regex '.*\.\(jpg\|png\)'
-# echo $Q;

@@ -5,6 +5,7 @@
 ###Install the below required packages
 1. jpegoptim
 2. pngquant
+2. imagemagick
 
 ## How to use the convertor
 
