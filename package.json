@@ -4,6 +4,7 @@
   "description": "Image Convertor",
   "main": "index.sh",
   "dependencies": {
+    "fs-extra": "^8.1.0",
     "replace": "^1.1.1"
   },
   "devDependencies": {},
