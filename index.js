@@ -1,6 +1,7 @@
 var replace = require("replace");
-const path = require('path')
-const fs = require('fs-extra')
+const path = require('path');
+const fs = require('fs-extra');
+const exec = require('child_process').exec;
 
 // Things Needs to specify
 const TITLE = 'Samsung Youtube vanced'
@@ -14,6 +15,7 @@ function init() {
     copyTemplate().then((completed) => {
         console.log('Copy completed!');
         replaceArticleText();
+        compressImages();
     }, (err) => {
         console.log('Error in copying!', err);
     });
@@ -112,7 +114,7 @@ function replaceArticleText() {
 function copyTemplate() {
     return new Promise((resolve, reject) => {
         let source = path.resolve(__dirname, 'template')
-        let destination = path.resolve(__dirname, `${SOURCE_PATH}/article.php`);
+        let destination = path.resolve(__dirname, `${SOURCE_PATH}`);
 
         fs.copy(source, destination)
             .then((completed) => {
@@ -124,3 +126,12 @@ function copyTemplate() {
     })
 }
 
+function compressImages() {
+    const myShellScript = exec(`sh image-convertor.sh ${SOURCE_PATH}`);
+    myShellScript.stdout.on('data', (data) => {
+        console.log(data);
+    });
+    myShellScript.stderr.on('data', (data) => {
+        console.error(data);
+    });
+}

@@ -3,7 +3,8 @@
 
 # echo "Please enter the path for unoptimized images like /home/gulfamansari/Pictures/images/";
 # read INPUT_IMAGES_FILE_PATH;
-INPUT_IMAGES_FILE_PATH="/home/gulfamansari/Pictures/images/";
+INPUT_IMAGES_FILE_PATH=$PWD/$@'/images';
+echo $INPUT_IMAGES_FILE_PATH
 
 # Compress the PNG files
 find $INPUT_IMAGES_FILE_PATH*.{png,PNG} -exec pngquant --force --quality=40-100 --skip-if-larger --verbose \{} --output \{} \;
