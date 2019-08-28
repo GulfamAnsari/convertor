@@ -6,11 +6,16 @@ class ImageDownloader {
   init(webpageUrl, dest) {
     return new Promise((resolve, reject) => {
       this.getImageUrls(webpageUrl).then((images) => {
+
+        var id = "ctl03_Tabs1";
+        var lastFive = id.substr(id.length - 5); // => "Tabs1"
+
         let count = 0;
         console.log(images.length + ' is total images be downloaded', images);
         for (let index in images) {
+          const imageUrl = images[index];
           const options = {
-            url: images[index],
+            url: imageUrl,
             dest: dest
           }
           this.downloadIMG(options).then(() => {
