@@ -127,7 +127,7 @@ function copyTemplate() {
 }
 
 function compressImages() {
-    const myShellScript = exec(`sh image-convertor.sh ${SOURCE_PATH}`);
+    const myShellScript = exec(`sh image-convertor.sh ${SOURCE_PATH}/images/`);
     myShellScript.stdout.on('data', (data) => {
         console.log(data);
     });

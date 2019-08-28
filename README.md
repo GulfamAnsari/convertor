@@ -10,4 +10,4 @@
 
 ### Image compression
 1. Install the required packages according to your system.
-2. Run the `image-convertor.sh` bash script file using `sh` command `image-convertor.sh`
+2. Run the `image-convertor.sh PATH` bash script file using `sh` command `image-convertor.sh`. Path should be in the form of `/home/gulfamansari/Pictures/images/`
