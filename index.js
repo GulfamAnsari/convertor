@@ -6,10 +6,18 @@ const fs = require('fs-extra')
 const TITLE = 'Samsung Youtube vanced'
 const FOCUS_KEYWORD = 'samsung vanced';
 const SRC_BASE_URL = 'https://droidtechknow.000webhostapp.com/wp-content/uploads/2019/08';
-const SOURCE_PATH = 'hello-world'; // This is SLUG
+const SLUG = SOURCE_PATH = 'hello-world';
 
-// copyTemplate();
-replaceArticleText();
+init();
+
+function init() {
+    copyTemplate().then((completed) => {
+        console.log('Copy completed!');
+        replaceArticleText();
+    }, (err) => {
+        console.log('Error in copying!', err);
+    });
+}
 
 function replaceArticleText() {
     replace({
@@ -102,14 +110,17 @@ function replaceArticleText() {
 }
 
 function copyTemplate() {
-    let source = path.resolve(__dirname, 'template')
-    let destination = path.resolve(__dirname, `${SOURCE_PATH}/article.php`)
+    return new Promise((resolve, reject) => {
+        let source = path.resolve(__dirname, 'template')
+        let destination = path.resolve(__dirname, `${SOURCE_PATH}/article.php`);
 
-    fs.copy(source, destination)
-        .then(() => console.log('Copy completed!'))
-        .catch(err => {
-            console.log('An error occured while copying the folder.')
-            return console.error(err)
-        })
+        fs.copy(source, destination)
+            .then((completed) => {
+                resolve(completed);
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
 }
 
