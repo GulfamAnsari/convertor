@@ -17,13 +17,13 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
 
 (function init() {
     copyTemplate().then((completed) => {
-        console.log('Copy completed!');
-        imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH).then((count) => {
-            console.log(count + ' Images Downloaded');
+        console.log('Copy completed! \n');
+        imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH+'/images').then((count) => {
+            console.log(count + ' Images Downloaded \n');
             replaceArticleText();
-            console.log('Replace completed');
+            console.log('Replace completed \n');
+            console.log('######## Starting Compression ###########');
             compressImages();
-            console.log('Compress Images completed');
             // createMainImage('main', '50%');
             // createMainImage('side', '30%');
             console.log('Main Image Created');
