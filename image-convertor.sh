@@ -9,7 +9,7 @@ echo "#############################################################"
 echo $INPUT_IMAGES_FILE_PATH
 echo "#############################################################"
 # Compress the PNG files
-find $INPUT_IMAGES_FILE_PATH* -exec pngquant --force --quality=40-100 --skip-if-larger --verbose \{} --output \{} \;
+find $INPUT_IMAGES_FILE_PATH -regex '.*\.\(jpg\|png\)' -exec pngquant --force --quality=40-100 --skip-if-larger --verbose \{} --output \{} \;
 
 
 # Compres the jpeg files with the same modification date as original files.

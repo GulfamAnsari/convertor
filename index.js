@@ -13,15 +13,20 @@ init();
 
 function init() {
     copyTemplate().then((completed) => {
+        console.log('---------------')
         console.log('Copy completed!');
+        console.log('---------------')
         replaceArticleText();
+        console.log('---------------')
+        console.log('Replace completed');
+        console.log('---------------')
         compressImages();
     }, (err) => {
         console.log('Error in copying!', err);
     });
 }
 
-function replaceArticleText() {
+async function replaceArticleText() {
     replace({
         regex: 'alt=""',
         replacement: `alt="${FOCUS_KEYWORD}"`,
