@@ -22,7 +22,7 @@ function init() {
 function replaceArticleText() {
     replace({
         regex: 'alt=""',
-        replacement: FOCUS_KEYWORD,
+        replacement: `alt="${FOCUS_KEYWORD}"`,
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
