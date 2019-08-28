@@ -3,12 +3,14 @@ const path = require('path');
 const fs = require('fs-extra');
 const exec = require('child_process').exec;
 
-// Things Needs to specify
+/***** Things Needs to specify  ****************/
 const TITLE = 'Samsung Youtube vanced'
 const FOCUS_KEYWORD = 'Samsung vanced';
-const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(' ', '-').toLocaleLowerCase();
 const SRC_BASE_URL = 'https://droidtechknow.000webhostapp.com/wp-content/uploads/2019/08';
 const SLUG = SOURCE_PATH = 'hello-world';
+/********************************************/
+
+const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(' ', '-').toLocaleLowerCase();
 
 (function init() {
     copyTemplate().then((completed) => {
@@ -25,7 +27,7 @@ const SLUG = SOURCE_PATH = 'hello-world';
     });
 })();
 
-async function replaceArticleText() {
+function replaceArticleText() {
     replace({
         regex: 'alt=""',
         replacement: `alt="${FOCUS_KEYWORD}"`,
