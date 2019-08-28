@@ -5,13 +5,12 @@ const exec = require('child_process').exec;
 
 // Things Needs to specify
 const TITLE = 'Samsung Youtube vanced'
-const FOCUS_KEYWORD = 'samsung vanced';
+const FOCUS_KEYWORD = 'Samsung vanced';
+const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(' ', '-').toLocaleLowerCase();
 const SRC_BASE_URL = 'https://droidtechknow.000webhostapp.com/wp-content/uploads/2019/08';
 const SLUG = SOURCE_PATH = 'hello-world';
 
-init();
-
-function init() {
+(function init() {
     copyTemplate().then((completed) => {
         console.log('---------------')
         console.log('Copy completed!');
@@ -24,7 +23,7 @@ function init() {
     }, (err) => {
         console.log('Error in copying!', err);
     });
-}
+})();
 
 async function replaceArticleText() {
     replace({
