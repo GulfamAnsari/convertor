@@ -4,8 +4,12 @@
 # echo "Please enter the path for unoptimized images like /home/gulfamansari/Pictures/images/";
 # read INPUT_IMAGES_FILE_PATH;
 INPUT_IMAGES_FILE_PATH=$@
+
+echo "#############################################################"
+echo $INPUT_IMAGES_FILE_PATH
+echo "#############################################################"
 # Compress the PNG files
-find $INPUT_IMAGES_FILE_PATH*.{png,PNG} -exec pngquant --force --quality=40-100 --skip-if-larger --verbose \{} --output \{} \;
+find $INPUT_IMAGES_FILE_PATH* -exec pngquant --force --quality=40-100 --skip-if-larger --verbose \{} --output \{} \;
 
 
 # Compres the jpeg files with the same modification date as original files.
@@ -13,4 +17,7 @@ find $INPUT_IMAGES_FILE_PATH*.{png,PNG} -exec pngquant --force --quality=40-100 
 # -m50 = 50% compression rate
 # -p = preserve the modification time
 # -t = print total after processing the files
-jpegoptim $INPUT_IMAGES_FILE_PATH*.{jpg,JPG,jpeg,JPEG} -m50 -o -p -t
+jpegoptim $INPUT_IMAGES_FILE_PATH* -m50 -o -p -t
+
+# Q=find $INPUT_IMAGES_FILE_PATH -regex '.*\.\(jpg\|png\)'
+# echo $Q;
