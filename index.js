@@ -8,7 +8,7 @@ var imageDownloader = new ImageDownloader();
 /***** Things Needs to specify  ****************/
 const TITLE = 'Samsung Youtube vanced'
 const FOCUS_KEYWORD = 'Photo gallery apps';
-const IMAGES_WEBPAGE_URL = '';
+const IMAGES_WEBPAGE_URL = 'https://droidtechknow.000webhostapp.com/2019/08/10-best-photo-gallery-apps-in-android';
 const SRC_BASE_URL = 'https://droidtechknow.000webhostapp.com/wp-content/uploads/2019/08';
 const SLUG = SOURCE_PATH = 'hello-world';
 /********************************************/
@@ -24,8 +24,8 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
             console.log('Replace completed');
             compressImages();
             console.log('Compress Images completed');
-            createMainImage('main', '50%');
-            createMainImage('side', '30%');
+            // createMainImage('main', '50%');
+            // createMainImage('side', '30%');
             console.log('Main Image Created');
         });
     }, (err) => {

@@ -7,6 +7,7 @@ class ImageDownloader {
     return new Promise((resolve, reject) => {
       this.getImageUrls(webpageUrl).then((images) => {
         let count = 0;
+        console.log(images.length + ' is total images be downloaded', images);
         for (let index in images) {
           const options = {
             url: images[index],
