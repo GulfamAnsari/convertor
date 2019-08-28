@@ -2,10 +2,13 @@ var replace = require("replace");
 const path = require('path');
 const fs = require('fs-extra');
 const exec = require('child_process').exec;
+var ImageDownloader = require('./image-downloader');
+var imageDownloader = new ImageDownloader();
 
 /***** Things Needs to specify  ****************/
 const TITLE = 'Samsung Youtube vanced'
 const FOCUS_KEYWORD = 'Photo gallery apps';
+const IMAGES_WEBPAGE_URL = '';
 const SRC_BASE_URL = 'https://droidtechknow.000webhostapp.com/wp-content/uploads/2019/08';
 const SLUG = SOURCE_PATH = 'hello-world';
 /********************************************/
@@ -14,22 +17,17 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
 
 (function init() {
     copyTemplate().then((completed) => {
-        console.log('---------------')
         console.log('Copy completed!');
-        console.log('---------------')
-        replaceArticleText();
-        console.log('---------------')
-        console.log('Replace completed');
-        console.log('---------------')
-        // compressImages();
-        console.log('---------------')
-        console.log('Compress Images completed');
-        console.log('---------------')
-        createMainImage('main', '50%');
-        createMainImage('side', '30%');
-        console.log('---------------')
-        console.log('Main Image Created');
-        console.log('---------------')
+        imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH).then((count) => {
+            console.log(count + ' Images Downloaded');
+            replaceArticleText();
+            console.log('Replace completed');
+            compressImages();
+            console.log('Compress Images completed');
+            createMainImage('main', '50%');
+            createMainImage('side', '30%');
+            console.log('Main Image Created');
+        });
     }, (err) => {
         console.log('Error in copying!', err);
     });
