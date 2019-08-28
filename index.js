@@ -5,12 +5,12 @@ const exec = require('child_process').exec;
 
 /***** Things Needs to specify  ****************/
 const TITLE = 'Samsung Youtube vanced'
-const FOCUS_KEYWORD = 'Samsung vanced';
+const FOCUS_KEYWORD = 'Photo gallery apps';
 const SRC_BASE_URL = 'https://droidtechknow.000webhostapp.com/wp-content/uploads/2019/08';
 const SLUG = SOURCE_PATH = 'hello-world';
 /********************************************/
 
-const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(' ', '-').toLocaleLowerCase();
+const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
 
 (function init() {
     copyTemplate().then((completed) => {
@@ -21,7 +21,15 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(' ', '-').toLocaleLowerCase();
         console.log('---------------')
         console.log('Replace completed');
         console.log('---------------')
-        compressImages();
+        // compressImages();
+        console.log('---------------')
+        console.log('Compress Images completed');
+        console.log('---------------')
+        createMainImage('main', '50%');
+        createMainImage('side', '30%');
+        console.log('---------------')
+        console.log('Main Image Created');
+        console.log('---------------')
     }, (err) => {
         console.log('Error in copying!', err);
     });
@@ -135,6 +143,17 @@ function copyTemplate() {
 function compressImages() {
     let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
     const myShellScript = exec(`sh image-convertor.sh ${pwd}/`);
+    myShellScript.stdout.on('data', (data) => {
+        console.log(data);
+    });
+    myShellScript.stderr.on('data', (data) => {
+        console.error(data);
+    });
+}
+
+function createMainImage(append, rate) {
+    let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
+    const myShellScript = exec(`mogrify -resize ${rate} ${pwd}/${TOP_IMAGE_NAME}.jpg  > ${pwd}/${TOP_IMAGE_NAME}-${append}.jpg`);
     myShellScript.stdout.on('data', (data) => {
         console.log(data);
     });
