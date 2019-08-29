@@ -1,10 +1,11 @@
 var replace = require("replace");
 const path = require('path');
 const fs = require('fs-extra');
-const chalk = require('chalk');
 const exec = require('child_process').exec;
 var ImageDownloader = require('./image-downloader');
+var Logs = require('./logs');
 var imageDownloader = new ImageDownloader();
+var logs = new Logs();
 
 /***** Things Needs to specify  ****************/
 const TITLE = 'Samsung Youtube vanced'
@@ -18,22 +19,22 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
 
 (function init() {
     copyTemplate().then((completed) => {
-        console.log(chalk.green('######### Copy completed #########\n'));
+        logs.display('Copy completed', 'green', true);
         imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
-            console.log(chalk.green('\n######### ' + count + ' Images Downloaded ##########\n'));
+            logs.display(count + ' Images Downloaded', 'green', true);
             replaceArticleText();
-            console.log(chalk.green('####### Replace completed #######\n'));
+            logs.display('Replace completed', 'green', true);
             compressImages(count).then((count) => {
-                console.log(chalk.green(`####### ${count} files Compressed Successfully #######\n`));
+                logs.display(`${count} files Compressed Successfully`, 'green', true);
                 createMainImage('main', '60%');
                 createMainImage('side', '35%');
-                console.log(chalk.green('####### Database Images created Succesfully #######\n'));
-            }, (err) => console.log(chalk.red(data)));
+                logs.display('Database Images created Succesfully', 'green', true);
+            }, (err) => logs.display('Error: ' + err, 'red', true));
         }, (err) => {
-            console.log(chalk.red(err))
+            logs.display('Error: ' + err, 'red', true);
         });
     }, (err) => {
-        console.log('Error in copying!', err);
+        logs.display('Error: ' + err, 'red', true);
     });
 })();
 
@@ -147,7 +148,7 @@ function compressImages(count) {
         let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
         const myShellScript = exec(`sh image-convertor.sh ${pwd}/`);
         myShellScript.stdout.on('data', (data) => {
-            console.log(chalk.blue(data));
+            logs.display(data, 'blue', false);
             if (data.includes(count + ' file')) {
                 resolve(count)
             }
@@ -163,20 +164,20 @@ function createMainImage(append, rate) {
 
     const copy = exec(`cp  ${pwd}/${TOP_IMAGE_NAME}.jpg ${pwd}/${TOP_IMAGE_NAME}-${append}.jpg`);
     copy.stdout.on('data', (data) => {
-        console.log(data);
+        logs.display(data, 'blue', false);
     });
-    copy.stderr.on('data', (data) => {
-        console.error(data);
+    copy.stderr.on('data', (err) => {
+        logs.display('Error: ' + err, 'red', true);
     });
 
     // This is why because copying files takes time, so we doing small hack here
     setTimeout(() => {
         const myShellScript = exec(`mogrify -resize ${rate}  ${pwd}/${TOP_IMAGE_NAME}-${append}.jpg`);
         myShellScript.stdout.on('data', (data) => {
-            console.log(data);
+            logs.display(data, 'blue', false);
         });
-        myShellScript.stderr.on('data', (data) => {
-            console.error(chalk.red(data));
+        myShellScript.stderr.on('data', (err) => {
+            logs.display('Error: ' + err, 'red', true);
         });
     }, 2000);
 }

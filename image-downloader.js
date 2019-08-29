@@ -1,6 +1,7 @@
 const Crawler = require("crawler");
 const download = require('image-downloader');
-const chalk = require('chalk');
+var Logs = require('./logs');
+var logs = new Logs();
 
 class ImageDownloader {
 
@@ -14,10 +15,10 @@ class ImageDownloader {
             validImageURLS.push(images[index]);
           }
         }
-        console.log(chalk.blue(`Total Image URLS found: ${images.length} 
+        logs.display(`Total Image URLS found: ${images.length} 
         \nValid Images URLS: ${validImageURLS.length}
-        \nInvalid Images URLS: ${images.length - validImageURLS.length}\n`));
-        // console.log(chalk.cyan(validImageURLS + '\n')); // All images urls in an array
+        \nInvalid Images URLS: ${images.length - validImageURLS.length}\n`, 'cyan', false);
+        // logs.display(validImageURLS, 'cyan', false)// All images urls in an array
 
         for (let index in validImageURLS) {
           const imageUrl = validImageURLS[index];
@@ -42,9 +43,9 @@ class ImageDownloader {
     return new Promise((resolve, reject) => {
       const allImages = [];
       return new Crawler({
-        callback: (error, res, done) => {
-          if (error) {
-            console.log(chalk.red({ error }));
+        callback: (err, res, done) => {
+          if (err) {
+            logs.display('Error: ' + err, 'red', true);
           } else {
             const images = res.$('img');
             images.each(index => {
@@ -61,7 +62,7 @@ class ImageDownloader {
   async downloadIMG(options) {
     try {
       const { filename, image } = await download.image(options)
-      console.log(chalk.blue(filename, 'Downloaded'));
+      logs.display(filename + ' Downloaded', 'cyan', false);
     } catch (e) {
       throw e;
     }
