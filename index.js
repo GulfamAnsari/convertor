@@ -23,10 +23,12 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
             console.log(chalk.green('\n######### ' + count + ' Images Downloaded ##########\n'));
             replaceArticleText();
             console.log(chalk.green('####### Replace completed #######\n'));
-            compressImages();
-            createMainImage('main', '50%');
-            createMainImage('side', '30%');
-            console.log(chalk.green('####### Database Images created Succesfully #######\n'));
+            compressImages(count).then((count) => {
+                console.log(chalk.green(`####### ${count} files Compressed Successfully #######\n`));
+                createMainImage('main', '60%');
+                createMainImage('side', '35%');
+                console.log(chalk.green('####### Database Images created Succesfully #######\n'));
+            }, (err) => console.log(chalk.red(data)));
         }, (err) => {
             console.log(chalk.red(err))
         });
@@ -140,15 +142,20 @@ function copyTemplate() {
     })
 }
 
-function compressImages() {
-    let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
-    const myShellScript = exec(`sh image-convertor.sh ${pwd}/`);
-    myShellScript.stdout.on('data', (data) => {
-        console.log(chalk.blue(data));
-    });
-    myShellScript.stderr.on('data', (data) => {
-        console.log(chalk.red(data));
-    });
+function compressImages(count) {
+    return new Promise((resolve, reject) => {
+        let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
+        const myShellScript = exec(`sh image-convertor.sh ${pwd}/`);
+        myShellScript.stdout.on('data', (data) => {
+            console.log(chalk.blue(data));
+            if (data.includes(count + ' file')) {
+                resolve(count)
+            }
+        });
+        myShellScript.stderr.on('data', (err) => {
+            reject(err);
+        });
+    })
 }
 
 function createMainImage(append, rate) {
@@ -162,11 +169,14 @@ function createMainImage(append, rate) {
         console.error(data);
     });
 
-    const myShellScript = exec(`mogrify -resize ${rate}  ${pwd}/${TOP_IMAGE_NAME}-${append}.jpg`);
-    myShellScript.stdout.on('data', (data) => {
-        console.log(data);
-    });
-    myShellScript.stderr.on('data', (data) => {
-        console.error(data);
-    });
+    // This is why because copying files takes time, so we doing small hack here
+    setTimeout(() => {
+        const myShellScript = exec(`mogrify -resize ${rate}  ${pwd}/${TOP_IMAGE_NAME}-${append}.jpg`);
+        myShellScript.stdout.on('data', (data) => {
+            console.log(data);
+        });
+        myShellScript.stderr.on('data', (data) => {
+            console.error(chalk.red(data));
+        });
+    }, 2000);
 }
