@@ -1,6 +1,7 @@
 var replace = require("replace");
 const path = require('path');
 const fs = require('fs-extra');
+const chalk = require('chalk');
 const exec = require('child_process').exec;
 var ImageDownloader = require('./image-downloader');
 var imageDownloader = new ImageDownloader();
@@ -17,13 +18,12 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
 
 (function init() {
     copyTemplate().then((completed) => {
-        console.log('Copy completed! \n');
+        console.log(chalk.green('######### Copy completed #########\n'));
         imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH+'/images').then((count) => {
-            console.log(count + ' Images Downloaded \n');
+            console.log(chalk.green('\n######### '+count + ' Images Downloaded ##########\n'));
             replaceArticleText();
-            console.log('Replace completed \n');
-            console.log('######## Starting Compression ###########');
-            compressImages();
+            console.log(chalk.green('####### Replace completed #######\n'));
+            // compressImages();
             // createMainImage('main', '50%');
             // createMainImage('side', '30%');
             console.log('Main Image Created');

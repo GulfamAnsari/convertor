@@ -4,6 +4,7 @@
   "description": "Image Convertor",
   "main": "index.sh",
   "dependencies": {
+    "chalk": "^2.4.2",
     "crawler": "^1.2.1",
     "fs-extra": "^8.1.0",
     "image-downloader": "^3.5.0",
