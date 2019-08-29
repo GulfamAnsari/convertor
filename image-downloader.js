@@ -27,7 +27,7 @@ class ImageDownloader {
           }
           this.downloadIMG(options).then(() => {
             count++;
-            if (count === images.length) {
+            if (count === validImageURLS.length) {
               resolve(count);
             }
           }, (e) => reject(e));
