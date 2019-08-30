@@ -81,7 +81,7 @@ function replaceArticleText() {
 
     replace({
         regex: '<h2>',
-        replacement: '<h2 class="subHeading-with-border">',
+        replacement: '<br><h2 class="subHeading-with-border">',
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
@@ -90,14 +90,6 @@ function replaceArticleText() {
     replace({
         regex: '&nbsp;',
         replacement: '',
-        paths: [`${SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
-
-    replace({
-        regex: '</h2>',
-        replacement: '</h2><br>',
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
