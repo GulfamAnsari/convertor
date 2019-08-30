@@ -20,10 +20,10 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
 (function init() {
     copyTemplate().then((completed) => {
         logs.display('Copy completed', 'green', true);
+        replaceArticleText();
+        logs.display('Replace completed', 'green', true);
         imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
             logs.display(count + ' Images Downloaded', 'green', true);
-            replaceArticleText();
-            logs.display('Replace completed', 'green', true);
             compressImages(count).then((count) => {
                 logs.display(`${count} files Compressed Successfully`, 'green', true);
                 createMainImage('main', '60%');
@@ -37,6 +37,8 @@ const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
         logs.display('Error: ' + err, 'red', true);
     });
 })();
+
+
 
 function replaceArticleText() {
     replace({
@@ -122,6 +124,30 @@ function replaceArticleText() {
     replace({
         regex: '</li>',
         replacement: '</p></li>',
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: /width="([0-9]+)"/g,
+        replacement: `width="100%"`,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: /height="([0-9]+)"/g,
+        replacement: ``,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: /<img class="(.*?)"/g,
+        replacement: `<img class="img img-responsive"`,
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
