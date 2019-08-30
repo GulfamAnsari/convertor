@@ -32,8 +32,8 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
             logs.display(count + ' Images Downloaded', 'green', true);
             compressImages(count).then((count) => {
                 logs.display(`${count} files Compressed Successfully`, 'green', true);
-                createMainImage('main', '60%');
-                createMainImage('side', '35%');
+                createMainImage('main', '45%');
+                createMainImage('side', '25%');
                 logs.display('Database Images created Succesfully', 'green', true);
             }, (err) => logs.display('Error: ' + err, 'red', true));
         }, (err) => {

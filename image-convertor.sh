@@ -25,7 +25,7 @@ find $INPUT_IMAGES_FILE_PATH -regex '.*\.\(PNG\|png\)' -exec pngquant --force --
 # -m80 = 80% compression rate
 # -p = preserve the modification time
 # -t = print total after processing the files
-jpegoptim $INPUT_IMAGES_FILE_PATH* -m80 -o -p -t
+jpegoptim $INPUT_IMAGES_FILE_PATH* -m77 -o -p -t
 
 
 # cleanup
