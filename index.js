@@ -8,14 +8,20 @@ var imageDownloader = new ImageDownloader();
 var logs = new Logs();
 
 /***** Things Needs to specify  ****************/
-const TITLE = 'Samsung Youtube vanced'
-const FOCUS_KEYWORD = 'become_a_patron_button@2x';
-const IMAGES_WEBPAGE_URL = 'https://www.npmjs.com/package/chalk';
-const SRC_BASE_URL = 'https://droidtechknow.000webhostapp.com/wp-content/uploads/2019/08';
-const SLUG = SOURCE_PATH = 'hello-world';
+const TITLE = 'Top 10 Best Photo Gallery Apps In Android - DroidTechKnow'
+const FOCUS_KEYWORD = 'photo gallery apps';
+const IMAGES_WEBPAGE_URL = 'https://droidtechknow.000webhostapp.com/2019/08/10-best-photo-gallery-apps-in-android';
 /********************************************/
 
+const SPLITTED_URL = IMAGES_WEBPAGE_URL.split('/');
+const DATE = SPLITTED_URL.slice(3, 5).join('/'); // 2019/08
+const DOMAIN = SPLITTED_URL.slice(0, 3).join('/'); //https://droidtechknow.000webhostapp.com
+
+const SLUG = SOURCE_PATH = SPLITTED_URL[SPLITTED_URL.length - 1];
+const SRC_BASE_URL = DOMAIN + '/wp-content/uploads/' + DATE
 const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
+
+logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: ${TOP_IMAGE_NAME}`, 'cyan', false);
 
 (function init() {
     copyTemplate().then((completed) => {
