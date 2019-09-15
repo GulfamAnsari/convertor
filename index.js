@@ -184,6 +184,14 @@ function replaceArticleText(htmlData) {
     });
 
     replace({
+        regex: '.png',
+        replacement: `.jpg`,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
         regex: '<p><a',
         replacement: `<a`,
         paths: [`${SOURCE_PATH}/article.php`],

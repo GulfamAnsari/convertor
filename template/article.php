@@ -6,8 +6,15 @@
   getCatagoryNavigationDetails();
   ?>
   <!-- Article start -->
-  <div class="post-entry"></div>
-  <!-- article body end -->
+  <div class="post-single clearfix">
+    <h1></h1>
+    <?php
+    getArticleDetails();
+    include($_SERVER['DOCUMENT_ROOT'] . '/commentCount.php');
+    ?>
+    <!-- article body -->
+    <div class="post-entry"></div>
+    <!-- article body end -->
 
   </div><!-- .post-single -->
 
