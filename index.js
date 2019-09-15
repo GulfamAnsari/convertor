@@ -30,8 +30,7 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
     copyTemplate().then((completed) => {
         logs.display('Copy completed', 'green', true);
         crawlHtmlFromWebpage(IMAGES_WEBPAGE_URL).then((htmlData) => {
-            console.log(htmlData)
-            logs.display('Copy Html', 'green', true);
+            logs.display('Copy Html from URL', 'green', true);
             replaceArticleText(htmlData);
             logs.display('Replace completed', 'green', true);
             imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
