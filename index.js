@@ -1,6 +1,8 @@
 var replace = require("replace");
 const path = require('path');
 const fs = require('fs-extra');
+var Crawler = require("crawler");
+const cheerio = require('cheerio');
 const exec = require('child_process').exec;
 var ImageDownloader = require('./image-downloader');
 var Logs = require('./logs');
@@ -8,10 +10,11 @@ var imageDownloader = new ImageDownloader();
 var logs = new Logs();
 
 /***** Things Needs to specify  ****************/
-const TITLE = 'Top 10 Best Photo Gallery Apps In Android - DroidTechKnow'
-const FOCUS_KEYWORD = 'photo gallery apps';
-const IMAGES_WEBPAGE_URL = 'https://droidtechknow.000webhostapp.com/2019/08/10-best-photo-gallery-apps-in-android';
+const TITLE = '6 Best Ubuntu Screen Recorder And How To Install Them On Ubuntu'
+const FOCUS_KEYWORD = 'ubuntu screen recorder';
+const IMAGES_WEBPAGE_URL = 'https://droidtechknow.000webhostapp.com/2019/09/best-ubuntu-screen-recorder-and-how-to-install-them-on-ubuntu';
 /********************************************/
+
 
 const SPLITTED_URL = IMAGES_WEBPAGE_URL.split('/');
 const DATE = SPLITTED_URL.slice(3, 5).join('/'); // 2019/08
@@ -26,27 +29,57 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
 (function init() {
     copyTemplate().then((completed) => {
         logs.display('Copy completed', 'green', true);
-        replaceArticleText();
-        logs.display('Replace completed', 'green', true);
-        imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
-            logs.display(count + ' Images Downloaded', 'green', true);
-            compressImages(count).then((count) => {
-                logs.display(`${count} files Compressed Successfully`, 'green', true);
-                createMainImage('main', '45%');
-                createMainImage('side', '25%');
-                logs.display('Database Images created Succesfully', 'green', true);
-            }, (err) => logs.display('Error: ' + err, 'red', true));
-        }, (err) => {
-            logs.display('Error: ' + err, 'red', true);
-        });
+        crawlHtmlFromWebpage(IMAGES_WEBPAGE_URL).then((htmlData) => {
+            console.log(htmlData)
+            logs.display('Copy Html', 'green', true);
+            replaceArticleText(htmlData);
+            logs.display('Replace completed', 'green', true);
+            imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
+                logs.display(count + ' Images Downloaded', 'green', true);
+                compressImages(count).then((count) => {
+                    logs.display(`${count} files Compressed Successfully`, 'green', true);
+                    createMainImage('main', '45%');
+                    createMainImage('side', '25%');
+                    logs.display('Database Images created Succesfully', 'green', true);
+                }, (err) => logs.display('Error: ' + err, 'red', true));
+            }, (err) => {
+                logs.display('Error: ' + err, 'red', true);
+            });
+        })
     }, (err) => {
         logs.display('Error: ' + err, 'red', true);
     });
 })();
 
+function crawlHtmlFromWebpage(webpageUrl) {
+    return new Promise((resolve, reject) => {
+        var crawler = new Crawler({
+            maxConnections: 10,
+            // This will be called for each crawled page
+            callback: function (error, res, done) {
+                if (error) {
+                    reject(error);
+                } else {
+                    var $ = cheerio.load(res.body.replace(/<!--|-->/g, ''))
+                    resolve($('.post-entry').html())
+                }
+                done();
+            }
+        });
+        crawler.queue(webpageUrl);
+    })
+}
 
 
-function replaceArticleText() {
+function replaceArticleText(htmlData) {
+    replace({
+        regex: '<div class="post-entry"></div>',
+        replacement: `<div class="post-entry">${htmlData}</div>`,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
     replace({
         regex: 'alt=""',
         replacement: `alt="${FOCUS_KEYWORD}"`,
@@ -146,6 +179,38 @@ function replaceArticleText() {
     replace({
         regex: /<img class="(.*?)"/g,
         replacement: `<img class="img img-responsive"`,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: '<p><a',
+        replacement: `<a`,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: '</a></p>',
+        replacement: `</a>`,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: /srcset="(.*?)"/g,
+        replacement: ``,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: /sizes="(.*?)"/g,
+        replacement: ``,
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
