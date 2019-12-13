@@ -28,9 +28,9 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
 (function init() {
     copyTemplate().then((completed) => {
         logs.display('Copy completed', 'green', true);
-        crawlHtmlFromWebpage(IMAGES_WEBPAGE_URL).then((htmlData, meta) => {
+        crawlHtmlFromWebpage(IMAGES_WEBPAGE_URL).then((data) => {
             logs.display('Copy Html from URL', 'green', true);
-            replaceArticleText(htmlData, meta);
+            replaceArticleText(data.htmlData, data.meta);
             logs.display('Replace completed', 'green', true);
             imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
                 logs.display(count + ' Images Downloaded', 'green', true);
@@ -66,8 +66,11 @@ function crawlHtmlFromWebpage(webpageUrl) {
                             tags = `${tags? tags + ', ': ''}${res.$('meta')[index].attribs.content}`
                         }
                     }
-                    const meta = { title, tags };
-                    resolve($('.post-entry').html(), meta);
+                    const data = {
+                        htmlData: $('.post-entry').html(), 
+                        meta:  { title, tags }
+                    };
+                    resolve(data);
                 }
                 done();
             }
