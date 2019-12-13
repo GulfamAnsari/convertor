@@ -18,7 +18,7 @@ class Utils {
 
     post(url, data) {
         return new Promise((resolve, reject) => {
-            request.post(url, { method: "GET", body: data, json: true }, (error, response, body) => {
+            request.post(url, { method: "POST", body: data, json: true }, (error, response, body) => {
                 if (!error && response.statusCode == 200) {
                     resolve(body);
                 } else {

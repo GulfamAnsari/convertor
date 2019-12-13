@@ -12,10 +12,10 @@ class UpdateDB {
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             this.createDbObject(data.htmlData, data.meta).then((DbObject) => {
                 this.addArticleOnRemoteDb(DbObject).then((remoteStatus) => {
-                    console.log(remoteStatus);
-                })
-            });
-        })
+                    logs.display('DB Update Successfully', 'green', true);
+                }, (error) => { logs.display('Error while updating DB', 'green', true); })
+            }, (error) => { logs.display('Error while updating DB', 'green', true); })
+        }, (error) => { logs.display('Error while updating DB', 'green', true); })
     }
 
     createDbObject(htmlData, meta) {
@@ -55,7 +55,7 @@ class UpdateDB {
                 logs.display('New DB Object', 'blue', true);
                 logs.display(JSON.stringify(DB), 'cyan', true);
                 resolve(DB);
-            })
+            }, (error) => {reject(error)})
         })
     }
 
