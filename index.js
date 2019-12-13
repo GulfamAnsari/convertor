@@ -10,9 +10,8 @@ var imageDownloader = new ImageDownloader();
 var logs = new Logs();
 
 /***** Things Needs to specify  ****************/
-const TITLE = '6 Best Ubuntu Screen Recorder And How To Install Them On Ubuntu'
-const FOCUS_KEYWORD = 'ubuntu screen recorder';
-const IMAGES_WEBPAGE_URL = 'https://droidtechknow.000webhostapp.com/2019/09/best-ubuntu-screen-recorder-and-how-to-install-them-on-ubuntu';
+const FOCUS_KEYWORD = 'set cron jobs';
+const IMAGES_WEBPAGE_URL = 'https://droidtechknow.000webhostapp.com/2019/12/how-to-set-cron-jobs-in-linux-an-introduction-to-crontab';
 /********************************************/
 
 
@@ -29,9 +28,9 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
 (function init() {
     copyTemplate().then((completed) => {
         logs.display('Copy completed', 'green', true);
-        crawlHtmlFromWebpage(IMAGES_WEBPAGE_URL).then((htmlData) => {
+        crawlHtmlFromWebpage(IMAGES_WEBPAGE_URL).then((htmlData, meta) => {
             logs.display('Copy Html from URL', 'green', true);
-            replaceArticleText(htmlData);
+            replaceArticleText(htmlData, meta);
             logs.display('Replace completed', 'green', true);
             imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
                 logs.display(count + ' Images Downloaded', 'green', true);
@@ -60,7 +59,15 @@ function crawlHtmlFromWebpage(webpageUrl) {
                     reject(error);
                 } else {
                     var $ = cheerio.load(res.body.replace(/<!--|-->/g, ''))
-                    resolve($('.post-entry').html())
+                    var title = res.$('title').text();
+                    var tags = '';
+                    for (var index of Object.keys(res.$('meta'))) {
+                        if (res.$('meta')[index] && res.$('meta')[index].attribs && res.$('meta')[index].attribs.property && res.$('meta')[index].attribs.property == 'article:tag') {
+                            tags = `${tags? tags + ', ': ''}${res.$('meta')[index].attribs.content}`
+                        }
+                    }
+                    const meta = { title, tags };
+                    resolve($('.post-entry').html(), meta);
                 }
                 done();
             }
@@ -70,7 +77,7 @@ function crawlHtmlFromWebpage(webpageUrl) {
 }
 
 
-function replaceArticleText(htmlData) {
+function replaceArticleText(htmlData, meta) {
     replace({
         regex: '<div class="post-entry"></div>',
         replacement: `<div class="post-entry">${htmlData}</div>`,
@@ -89,7 +96,7 @@ function replaceArticleText(htmlData) {
 
     replace({
         regex: '<h1></h1>',
-        replacement: `<h1>${TITLE}</h1>`,
+        replacement: `<h1>${meta.title}</h1>`,
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
@@ -154,6 +161,14 @@ function replaceArticleText(htmlData) {
     replace({
         regex: '</li>',
         replacement: '</p></li>',
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: '<pre>',
+        replacement: '<pre class="ubuntu-terminal">',
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
