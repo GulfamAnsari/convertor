@@ -1,38 +1,34 @@
 var replace = require("replace");
 const path = require('path');
 const fs = require('fs-extra');
-var Crawler = require("crawler");
-const cheerio = require('cheerio');
 const exec = require('child_process').exec;
+var CONSTANTS = require('./constants')
 var ImageDownloader = require('./image-downloader');
+var WebpageCrawler = require('./webpageCrawler');
 var Logs = require('./logs');
 var imageDownloader = new ImageDownloader();
+var webpageCrawler = new WebpageCrawler();
 var logs = new Logs();
 
-/***** Things Needs to specify  ****************/
-const FOCUS_KEYWORD = 'set cron jobs';
-const IMAGES_WEBPAGE_URL = 'https://droidtechknow.000webhostapp.com/2019/12/how-to-set-cron-jobs-in-linux-an-introduction-to-crontab';
-/********************************************/
 
-
-const SPLITTED_URL = IMAGES_WEBPAGE_URL.split('/');
+const SPLITTED_URL = CONSTANTS.IMAGES_WEBPAGE_URL.split('/');
 const DATE = SPLITTED_URL.slice(3, 5).join('/'); // 2019/08
 const DOMAIN = SPLITTED_URL.slice(0, 3).join('/'); //https://droidtechknow.000webhostapp.com
 
 const SLUG = SOURCE_PATH = SPLITTED_URL[SPLITTED_URL.length - 1];
 const SRC_BASE_URL = DOMAIN + '/wp-content/uploads/' + DATE
-const TOP_IMAGE_NAME = FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
+const TOP_IMAGE_NAME = CONSTANTS.FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
 
 logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: ${TOP_IMAGE_NAME}`, 'cyan', false);
 
 (function init() {
     copyTemplate().then((completed) => {
         logs.display('Copy completed', 'green', true);
-        crawlHtmlFromWebpage(IMAGES_WEBPAGE_URL).then((data) => {
+        webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             logs.display('Copy Html from URL', 'green', true);
             replaceArticleText(data.htmlData, data.meta);
             logs.display('Replace completed', 'green', true);
-            imageDownloader.init(IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
+            imageDownloader.init(CONSTANTS.IMAGES_WEBPAGE_URL, SOURCE_PATH + '/images').then((count) => {
                 logs.display(count + ' Images Downloaded', 'green', true);
                 compressImages(count).then((count) => {
                     logs.display(`${count} files Compressed Successfully`, 'green', true);
@@ -49,37 +45,6 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
     });
 })();
 
-function crawlHtmlFromWebpage(webpageUrl) {
-    return new Promise((resolve, reject) => {
-        var crawler = new Crawler({
-            maxConnections: 10,
-            // This will be called for each crawled page
-            callback: function (error, res, done) {
-                if (error) {
-                    reject(error);
-                } else {
-                    var $ = cheerio.load(res.body.replace(/<!--|-->/g, ''))
-                    var title = res.$('title').text();
-                    var tags = '';
-                    for (var index of Object.keys(res.$('meta'))) {
-                        if (res.$('meta')[index] && res.$('meta')[index].attribs && res.$('meta')[index].attribs.property && res.$('meta')[index].attribs.property == 'article:tag') {
-                            tags = `${tags? tags + ', ': ''}${res.$('meta')[index].attribs.content}`
-                        }
-                    }
-                    const data = {
-                        htmlData: $('.post-entry').html(), 
-                        meta:  { title, tags }
-                    };
-                    resolve(data);
-                }
-                done();
-            }
-        });
-        crawler.queue(webpageUrl);
-    })
-}
-
-
 function replaceArticleText(htmlData, meta) {
     replace({
         regex: '<div class="post-entry"></div>',
@@ -91,7 +56,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: 'alt=""',
-        replacement: `alt="${FOCUS_KEYWORD}"`,
+        replacement: `alt="${CONSTANTS.FOCUS_KEYWORD}"`,
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
