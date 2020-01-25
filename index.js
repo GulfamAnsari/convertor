@@ -160,7 +160,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: /<img class="(.*?)"/g,
-        replacement: `<img class="img img-responsive"`,
+        replacement: `<img class="img img-responsive articleImages" style="background:<?php echo getRandomColorCode(); ?>"`,
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
@@ -201,6 +201,14 @@ function replaceArticleText(htmlData, meta) {
     replace({
         regex: /sizes="(.*?)"/g,
         replacement: ``,
+        paths: [`${SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: `src="`,
+        replacement: `src="" data-src="`,
         paths: [`${SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
