@@ -13,9 +13,9 @@ class UpdateDB {
             this.createDbObject(data.htmlData, data.meta).then((DbObject) => {
                 this.addArticleOnRemoteDb(DbObject).then((remoteStatus) => {
                     logs.display('DB Update Successfully', 'green', true);
-                }, (error) => { logs.display('Error while updating DB', 'green', true); })
-            }, (error) => { logs.display('Error while updating DB', 'green', true); })
-        }, (error) => { logs.display('Error while updating DB', 'green', true); })
+                }, (error) => { logs.display('Error while add article on remote db', 'green', true);})
+            }, (error) => { logs.display('Error while creating object', 'green', true); })
+        }, (error) => { logs.display('Error while crawling HTML', 'green', true); })
     }
 
     createDbObject(htmlData, meta) {
