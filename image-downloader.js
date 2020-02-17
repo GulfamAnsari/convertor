@@ -24,7 +24,7 @@ class ImageDownloader {
           const imageUrl = validImageURLS[index];
           const options = {
             url: imageUrl,
-            dest: dest
+            dest: dest + '/images'
           }
           this.downloadIMG(options).then(() => {
             count++;
