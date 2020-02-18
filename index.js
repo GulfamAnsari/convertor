@@ -24,7 +24,7 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
 
 let destination = '';
 // If not provide, folder will be in same directory
-destination = `/Users/gulfamansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}${CONSTANTS.SUBCATAGORY? '/' + CONSTANTS.SUBCATAGORY: '/'}${SOURCE_PATH}`;
+// destination = `/Users/gulfamansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}${CONSTANTS.SUBCATAGORY? '/' + CONSTANTS.SUBCATAGORY: '/'}${SOURCE_PATH}`;
 logs.display(`Check Destination : ${destination}`, 'cyan', false);
 
 (function init() {
@@ -46,6 +46,7 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                     logs.display(`${count} files Compressed Successfully`, 'green', true);
                     createMainImage('main', '45%');
                     createMainImage('side', '25%');
+                    createMainImage('blur', '5%');
                     logs.display('Database Images created Succesfully', 'green', true);
                 }, (err) => logs.display('Error: ' + err, 'red', true));
             }, (err) => {
@@ -217,7 +218,7 @@ function replaceArticleText(htmlData, meta) {
         recursive: true,
         silent: true,
     });
-
+    
     replace({
         regex: `src="`,
         replacement: `src="" data-src="`,
@@ -225,6 +226,15 @@ function replaceArticleText(htmlData, meta) {
         recursive: true,
         silent: true,
     });
+
+    replace({
+        regex: `src="" data-src="images/${TOP_IMAGE_NAME}.jpg"`,
+        replacement: `src="images/${TOP_IMAGE_NAME}-blur.jpg" data-src="images/${TOP_IMAGE_NAME}.jpg"`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
 }
 
 function copyTemplate() {
@@ -259,6 +269,7 @@ function compressImages(count) {
 
 function createMainImage(append, rate) {
     let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
+    pwd = destination + '/images' || pwd;
 
     const copy = exec(`cp  ${pwd}/${TOP_IMAGE_NAME}.jpg ${pwd}/${TOP_IMAGE_NAME}-${append}.jpg`);
     copy.stdout.on('data', (data) => {
