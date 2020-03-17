@@ -10,6 +10,7 @@ var Logs = require('./logs');
 var imageDownloader = new ImageDownloader();
 var webpageCrawler = new WebpageCrawler();
 var logs = new Logs();
+const jsdom = require("jsdom");
 
 
 const SPLITTED_URL = CONSTANTS.IMAGES_WEBPAGE_URL.split('/');
@@ -32,23 +33,34 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
         logs.display('Copy completed', 'green', true);
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             logs.display('Copy Html from URL', 'green', true);
-            replaceArticleText(data.htmlData, data.meta);
+            var updatedHtml = replaceSrcDataSrc(data.htmlData);
+            logs.display('Add data-src attributes', 'green', true);
+            updatedHtml = makeContentContainer(updatedHtml);
+            logs.display('Content container added', 'green', true);
+            replaceArticleText(updatedHtml, data.meta);
             logs.display('Replace completed', 'green', true);
-            if (!fileSys.existsSync(destination? destination + '/images':  SOURCE_PATH + '/images')){
-                fileSys.mkdirSync(destination? destination + '/images':  SOURCE_PATH + '/images');
+            if (!fileSys.existsSync(destination ? destination + '/images' : SOURCE_PATH + '/images')) {
+                fileSys.mkdirSync(destination ? destination + '/images' : SOURCE_PATH + '/images');
                 logs.display('Image folder created', 'green', true);
             } else {
                 logs.display('Image folder already there', 'cyan', true);
             }
-            imageDownloader.init(CONSTANTS.IMAGES_WEBPAGE_URL, destination || SOURCE_PATH).then((count) => {
-                logs.display(count + ' Images Downloaded', 'green', true);
+            imageDownloader.init(CONSTANTS.IMAGES_WEBPAGE_URL, destination || SOURCE_PATH).then((validImageURLS) => {
+                logs.display(validImageURLS.length + ' Images Downloaded', 'green', true);
+
+                for (url of validImageURLS) {
+                    createMainImage(url, 'blur', '5%');
+                    if (url.includes(TOP_IMAGE_NAME)) {
+                        createMainImage(url, 'main', '45%');
+                        createMainImage(url, 'side', '25%');
+                        logs.display('Database Images created Succesfully', 'green', true);
+                    }
+                }
+                const count = validImageURLS.length;
                 compressImages(count).then((count) => {
                     logs.display(`${count} files Compressed Successfully`, 'green', true);
-                    createMainImage('main', '45%');
-                    createMainImage('side', '25%');
-                    createMainImage('blur', '5%');
-                    logs.display('Database Images created Succesfully', 'green', true);
                 }, (err) => logs.display('Error: ' + err, 'red', true));
+
             }, (err) => {
                 logs.display('Error: ' + err, 'red', true);
             });
@@ -57,6 +69,49 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
         logs.display('Error: ' + err, 'red', true);
     });
 })();
+
+function replaceSrcDataSrc(string) {
+    const { JSDOM } = jsdom;
+    global.document = new JSDOM(string).window.document;
+
+    var elem = document.createElement("div");
+    elem.innerHTML = string;
+    var images = elem.getElementsByTagName("img");
+    for (var i = 0; i < images.length; i++) {
+        var src = images[i].src;
+        if (images[i].src[images[i].src.length - 1] === '/') {
+            src = src.slice(0, -1);
+        }
+        const ext = src.split('.')[src.split('.').length - 1];
+        var imageName = src.split('.').slice(0, src.split('.').length - 1).toString();
+        string = string.replace(`src="${src}`, `data-src="${src}" src="${imageName}-blur.${ext}`);
+    }
+    return string;
+}
+
+function makeContentContainer(string) {
+    const { JSDOM } = jsdom;
+    global.document = new JSDOM(string).window.document;
+    var elem = document.createElement("div");
+    elem.innerHTML = string;
+
+    var h2 = elem.getElementsByTagName("h2");
+
+    var contentList = '';
+    for (var i = 0; i < h2.length; i++) {
+        var id = h2[i].textContent.split(/\s/).join('');
+        contentList += `<li><a href="#${id}">${h2[i].textContent}</a></li>`;
+        h2[i].setAttribute("id", id);
+    }
+    var containtContainer = `<div id="content_container">
+    <p class="content_title">Contents <span class="content_toggle">[<a id="toggle_content_toggle">hide</a>]</span></p>
+    <ol class="content_list" id="toggle_content_list">
+    ${contentList}
+    </ol>
+    </div>`;
+    h2[0].outerHTML = containtContainer + h2[0].outerHTML;
+    return elem.innerHTML;
+}
 
 function replaceArticleText(htmlData, meta) {
     replace({
@@ -100,8 +155,8 @@ function replaceArticleText(htmlData, meta) {
     });
 
     replace({
-        regex: '<h2>',
-        replacement: '<br><h2 class="subHeading-with-border">',
+        regex: '<h2',
+        replacement: '<br><h2 class="subHeading-with-border" ',
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
@@ -218,22 +273,6 @@ function replaceArticleText(htmlData, meta) {
         recursive: true,
         silent: true,
     });
-    
-    replace({
-        regex: `src="`,
-        replacement: `src="" data-src="`,
-        paths: [`${destination || SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
-
-    replace({
-        regex: `src="" data-src="images/${TOP_IMAGE_NAME}.jpg"`,
-        replacement: `src="images/${TOP_IMAGE_NAME}-blur.jpg" data-src="images/${TOP_IMAGE_NAME}.jpg"`,
-        paths: [`${destination || SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
 
 }
 
@@ -267,11 +306,14 @@ function compressImages(count) {
     })
 }
 
-function createMainImage(append, rate) {
+function createMainImage(name, append, rate) {
     let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
-    pwd = destination + '/images' || pwd;
+    // pwd = destination + '/images' || pwd;
 
-    const copy = exec(`cp  ${pwd}/${TOP_IMAGE_NAME}.jpg ${pwd}/${TOP_IMAGE_NAME}-${append}.jpg`);
+    const ext = name.split('.')[name.split('.').length - 1];
+    var imageName = name.split('.').slice(0, name.split('.').length - 1).toString();
+    imageName = imageName.split('/')[imageName.split('/').length - 1];
+    const copy = exec(`cp  ${pwd}/${imageName}.${ext} ${pwd}/${imageName}-${append}.${ext}`);
     copy.stdout.on('data', (data) => {
         logs.display(data, 'blue', false);
     });
@@ -281,7 +323,7 @@ function createMainImage(append, rate) {
 
     // This is why because copying files takes time, so we doing small hack here
     setTimeout(() => {
-        const myShellScript = exec(`mogrify -resize ${rate}  ${pwd}/${TOP_IMAGE_NAME}-${append}.jpg`);
+        const myShellScript = exec(`mogrify -resize ${rate}  ${pwd}/${imageName}-${append}.${ext}`);
         myShellScript.stdout.on('data', (data) => {
             logs.display(data, 'blue', false);
         });

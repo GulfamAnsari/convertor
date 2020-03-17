@@ -11,7 +11,7 @@ class ImageDownloader {
         let count = 0;
         const validImageURLS = new Array();
         for (let index in images) {
-          if (images[index].match(/\.(jpeg|jpg|png|gif)/g) !== null && images[index].includes('//') && images[index].includes('http')) {
+          if (images[index].match(/\.(jpeg|jpg|png|gif)/g) !== null && images[index].includes('//') && images[index].includes('http') && !images[index].includes('footer-powered-by-000webhost')) {
             validImageURLS.push(images[index]);
           }
         }
@@ -26,10 +26,12 @@ class ImageDownloader {
             url: imageUrl,
             dest: dest + '/images'
           }
-          this.downloadIMG(options).then(() => {
+          var filenames = [];
+          this.downloadIMG(options).then((filename) => {
+            filenames.push(filename);
             count++;
             if (count === validImageURLS.length) {
-              resolve(count);
+              resolve(filenames);
             }
           }, (e) => reject(e));
           index++;
@@ -63,6 +65,7 @@ class ImageDownloader {
     try {
       const { filename, image } = await download.image(options)
       logs.display(filename + ' Downloaded', 'cyan', false);
+      return filename;
     } catch (e) {
       throw e;
     }
