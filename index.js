@@ -51,15 +51,18 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                 for (url of validImageURLS) {
                     createMainImage(url, 'blur', '5%');
                     if (url.includes(TOP_IMAGE_NAME)) {
-                        createMainImage(url, 'main', '45%');
-                        createMainImage(url, 'side', '25%');
+                        createMainImage(url, 'main', '30%');
+                        createMainImage(url, 'side', '14%');
                         logs.display('Database Images created Succesfully', 'green', true);
                     }
                 }
                 const count = validImageURLS.length;
-                compressImages(count).then((count) => {
-                    logs.display(`${count} files Compressed Successfully`, 'green', true);
-                }, (err) => logs.display('Error: ' + err, 'red', true));
+                logs.display(`Waiting... Files are in quque for compression`, 'blue', true);
+                setTimeout(() => {
+                    compressImages(count).then((count) => {
+                        logs.display(`${count} files Compressed Successfully`, 'green', true);
+                    }, (err) => logs.display('Error: ' + err, 'red', true)); 
+                }, 5000);
 
             }, (err) => {
                 logs.display('Error: ' + err, 'red', true);
@@ -308,7 +311,7 @@ function compressImages(count) {
 
 function createMainImage(name, append, rate) {
     let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
-    // pwd = destination + '/images' || pwd;
+    pwd = destination? destination + '/images' : pwd;
 
     const ext = name.split('.')[name.split('.').length - 1];
     var imageName = name.split('.').slice(0, name.split('.').length - 1).toString();
