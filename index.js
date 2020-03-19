@@ -25,7 +25,7 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
 
 let destination = '';
 // If not provide, folder will be in same directory
-// destination = `/Users/gulfamansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}${CONSTANTS.SUBCATAGORY? '/' + CONSTANTS.SUBCATAGORY: '/'}${SOURCE_PATH}`;
+destination = `/Users/gulfamansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}${CONSTANTS.SUBCATAGORY? '/' + CONSTANTS.SUBCATAGORY: '/'}${SOURCE_PATH}`;
 logs.display(`Check Destination : ${destination}`, 'cyan', false);
 
 (function init() {
@@ -49,10 +49,10 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                 logs.display(validImageURLS.length + ' Images Downloaded', 'green', true);
 
                 for (url of validImageURLS) {
-                    createMainImage(url, 'blur', '5%');
-                    if (url.includes(TOP_IMAGE_NAME)) {
-                        createMainImage(url, 'main', '30%');
-                        createMainImage(url, 'side', '14%');
+                    createMainImage(url, 'blur', '10%');
+                    if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
+                        createMainImage(url, 'main', '25%');
+                        createMainImage(url, 'side', '10%');
                         logs.display('Database Images created Succesfully', 'green', true);
                     }
                 }
