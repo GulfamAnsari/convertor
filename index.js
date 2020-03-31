@@ -33,9 +33,7 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
         logs.display('Copy completed', 'green', true);
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             logs.display('Copy Html from URL', 'green', true);
-            var updatedHtml = replaceSrcDataSrc(data.htmlData);
-            logs.display('Add data-src attributes', 'green', true);
-            updatedHtml = makeContentContainer(updatedHtml);
+            updatedHtml = makeContentContainer(data.htmlData);
             logs.display('Content container added', 'green', true);
             replaceArticleText(updatedHtml, data.meta);
             logs.display('Replace completed', 'green', true);
@@ -231,7 +229,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: /<img class="(.*?)"/g,
-        replacement: `<img class="img img-responsive articleImages" style="background:<?php echo getRandomColorCode(); ?>"`,
+        replacement: `<img class="img img-responsive"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
