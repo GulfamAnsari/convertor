@@ -13,6 +13,9 @@ class ImageDownloader {
         for (let index in images) {
           if (images[index].match(/\.(jpeg|jpg|png|gif)/g) !== null && images[index].includes('//') && images[index].includes('http') && !images[index].includes('footer-powered-by-000webhost')) {
             validImageURLS.push(images[index]);
+            logs.display(`Valid URL: ${images[index]}`, 'cyan', false );
+          } else {
+            logs.display(`Invalid URL: ${images[index]}`, 'red', false );
           }
         }
         logs.display(`Total Image URLS found: ${images.length} 
