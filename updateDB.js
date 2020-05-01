@@ -5,67 +5,80 @@ var utils = new Utils();
 var CONSTANTS = require('./constants');
 var Logs = require('./logs');
 var logs = new Logs();
+const request = require('request');
 
 
 class UpdateDB {
     constructor() {
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             this.createDbObject(data.htmlData, data.meta).then((DbObject) => {
-                this.addArticleOnRemoteDb(DbObject).then((remoteStatus) => {
-                    logs.display('DB Update Successfully', 'green', true);
-                }, (error) => { logs.display('Error while add article on remote db', 'green', true);})
-            }, (error) => { logs.display('Error while creating object', 'green', true); })
-        }, (error) => { logs.display('Error while crawling HTML', 'green', true); })
+                this.addArticleOnRemoteDb({ data: JSON.stringify(DbObject) }).then((remoteStatus) => {
+                    logs.display('DB Update Successfully ' + remoteStatus, 'green', true);
+                }, (error) => { logs.display('Error while add article on remote db ' + error, 'green', true); })
+            }, (error) => { logs.display('Error while creating object ' + error, 'green', true); })
+        }, (error) => { logs.display('Error while crawling HTML ' + error, 'green', true); })
     }
 
     createDbObject(htmlData, meta) {
+        const SPLITTED_URL = CONSTANTS.IMAGES_WEBPAGE_URL.split('/');
+        const TOP_IMAGE_NAME = CONSTANTS.FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
+        const SLUG = SPLITTED_URL[SPLITTED_URL.length - 1];
+        const articleLink = `/${CONSTANTS.CATAGORY}/${CONSTANTS.SUBCATAGORY ? CONSTANTS.SUBCATAGORY + '/' : ''}${SLUG}/`;
+        const imageLink = `${articleLink}images/${TOP_IMAGE_NAME}-main.jpg`;
+        const imageLink2 = `${articleLink}images/${TOP_IMAGE_NAME}-side.jpg`;
+        const DB = {
+            "username": CONSTANTS.USERNAME,
+            "password": CONSTANTS.PASSWORD,
+            "article": {
+                "post": '',
+                "articleTitle": meta.title,
+                "articleDescription": meta.description,
+                "articleDate": CONSTANTS.ARTICLE_DATA,
+                "catagory": CONSTANTS.CATAGORY,
+                "subCatagory": CONSTANTS.SUBCATAGORY,
+                "author": CONSTANTS.AUTHOR,
+                "views": 985,
+                "keywords": meta.tags,
+                articleLink,
+                imageLink,
+                imageLink2,
+                "imageAlt": CONSTANTS.FOCUS_KEYWORD,
+                "comment": 1,
+                "likes": 1,
+                "dislikes": 1
+            }
+        }
+        logs.display('Created Object', 'blue', true);
+        console.log(DB);
         return new Promise((resolve, reject) => {
-            utils.get('http://droidtechknow-dashboard.herokuapp.com/droid/article-list').then((data) => {
+            utils.get('https://droidtechknow.com/api/dashboard_fetch_all_results.php').then((data) => {
                 logs.display('Last DB Object', 'cyan', true);
                 logs.display(JSON.stringify(data[data.length - 1]), 'cyan', true);
-                const SPLITTED_URL = CONSTANTS.IMAGES_WEBPAGE_URL.split('/');
-                const TOP_IMAGE_NAME = CONSTANTS.FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
-                const SLUG = SPLITTED_URL[SPLITTED_URL.length - 1];
-                const articleLink = `/${CONSTANTS.CATAGORY}/${CONSTANTS.SUBCATAGORY ? CONSTANTS.SUBCATAGORY + '/' : ''}${SLUG}/`;
-                const imageLink = `${articleLink}images/${TOP_IMAGE_NAME}-main.jpg`;
-                const imageLink2 = `${articleLink}images/${TOP_IMAGE_NAME}-side.jpg`;
-
-                const DB = {
-                    "username": CONSTANTS.USERNAME,
-                    "password": CONSTANTS.PASSWORD,
-                    "article": {
-                        "post": data.length + 5,
-                        "articleTitle": meta.title,
-                        "articleDescription": meta.description,
-                        "articleDate": CONSTANTS.ARTICLE_DATA,
-                        "catagory": CONSTANTS.CATAGORY,
-                        "subCatagory": CONSTANTS.SUBCATAGORY,
-                        "author": CONSTANTS.AUTHOR,
-                        "views": 985,
-                        "keywords": meta.tags,
-                        articleLink,
-                        imageLink,
-                        imageLink2,
-                        "imageAlt": CONSTANTS.FOCUS_KEYWORD,
-                        "comment": 1,
-                        "likes": 1,
-                        "dislikes": 1
-                    }
-                }
+                DB.article.post = data.length + 5;
                 logs.display('New DB Object', 'blue', true);
                 logs.display(JSON.stringify(DB), 'cyan', true);
                 resolve(DB);
-            }, (error) => {reject(error)})
+            }, (error) => { reject(error) })
         })
     }
 
     addArticleOnRemoteDb(dbObject) {
+
         return new Promise((resolve, reject) => {
-            utils.post('http://droidtechknow-dashboard.herokuapp.com/droid/article-add', dbObject).then((result) => {
-                resolve(resolve)
-            }, (error) => {
-                reject(error);
-            })
+
+            const options = {
+                method: "POST",
+                url: "https://droidtechknow.com/admin/api/addArticle.php",
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+                formData: dbObject
+            };
+
+            request(options, (err, res, body) => {
+                if (err) reject(err);
+                resolve(body)
+            });
         });
     }
 }
