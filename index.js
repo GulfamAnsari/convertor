@@ -33,7 +33,9 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
         logs.display('Copy completed', 'green', true);
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             logs.display('Copy Html from URL', 'green', true);
-            updatedHtml = makeContentContainer(data.htmlData);
+            var updatedHtml = replaceSrcDataSrc(data.htmlData);
+            logs.display('Add data-src attributes', 'green', true);
+            updatedHtml = makeContentContainer(updatedHtml);
             logs.display('Content container added', 'green', true);
             replaceArticleText(updatedHtml, data.meta);
             logs.display('Replace completed', 'green', true);
@@ -48,8 +50,8 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
 
                 for (url of validImageURLS) {
                     if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-                        createMainImage(url, 'main', '27%');
-                        createMainImage(url, 'side', '15%');
+                        createMzainImage(url, 'main', '35%');
+                        createMainImage(url, 'side', '20%');
                         logs.display('Database Images created Succesfully', 'green', true);
                     }
                 }
@@ -84,7 +86,7 @@ function replaceSrcDataSrc(string) {
         }
         const ext = src.split('.')[src.split('.').length - 1];
         var imageName = src.split('.').slice(0, src.split('.').length - 1).toString();
-        string = string.replace(`src="${src}`, `data-src="${src}" src="${imageName}-blur.${ext}`);
+        string = string.replace(`src="${src}`, `data-src="${src}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=`);
     }
     return string;
 }
@@ -228,7 +230,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: /<img class="(.*?)"/g,
-        replacement: `<img class="img img-responsive"`,
+        replacement: `<img class="img img-responsive articleImages"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
