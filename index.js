@@ -86,7 +86,7 @@ function replaceSrcDataSrc(string) {
         }
         const ext = src.split('.')[src.split('.').length - 1];
         var imageName = src.split('.').slice(0, src.split('.').length - 1).toString();
-        string = string.replace(`src="${src}`, `data-src="${src}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=`);
+        string = string.replace(`src="${src}`, `data-src="${src}" src="droidtechknow-data-src-image.svg`);
     }
     return string;
 }
