@@ -25,7 +25,7 @@ logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: $
 
 let destination = '';
 // If not provide, folder will be in same directory
-destination = `/Users/gulfamansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}/${CONSTANTS.SUBCATAGORY? CONSTANTS.SUBCATAGORY + '/': ''}${SOURCE_PATH}`;
+destination = `/Users/gulfamansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}/${CONSTANTS.SUBCATAGORY ? CONSTANTS.SUBCATAGORY + '/' : ''}${SOURCE_PATH}`;
 logs.display(`Check Destination : ${destination}`, 'cyan', false);
 
 (function init() {
@@ -33,8 +33,11 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
         logs.display('Copy completed', 'green', true);
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             logs.display('Copy Html from URL', 'green', true);
-            var updatedHtml = replaceSrcDataSrc(data.htmlData);
-            logs.display('Add data-src attributes', 'green', true);
+            var updatedHtml = data.htmlData;
+            // updatedHtml = replaceSrcDataSrc(updatedHtml);
+            // logs.display('Add data-src attributes', 'green', true);
+            updatedHtml = makeFeaturedImages(updatedHtml, data.meta).replace(`<!--?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?-->`, `<?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?>`);
+            
             updatedHtml = makeContentContainer(updatedHtml);
             logs.display('Content container added', 'green', true);
             replaceArticleText(updatedHtml, data.meta);
@@ -50,8 +53,8 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
 
                 for (url of validImageURLS) {
                     if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-                        createMzainImage(url, 'main', '35%');
-                        createMainImage(url, 'side', '20%');
+                        createMainImage(url, 'main', '30%');
+                        createMainImage(url, 'side', '15%');
                         logs.display('Database Images created Succesfully', 'green', true);
                     }
                 }
@@ -60,7 +63,7 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                 setTimeout(() => {
                     compressImages(count).then((count) => {
                         logs.display(`${count} files Compressed Successfully`, 'green', true);
-                    }, (err) => logs.display('Error: ' + err, 'red', true)); 
+                    }, (err) => logs.display('Error: ' + err, 'red', true));
                 }, 5000);
 
             }, (err) => {
@@ -89,6 +92,27 @@ function replaceSrcDataSrc(string) {
         string = string.replace(`src="${src}`, `data-src="${src}" src="droidtechknow-data-src-image.svg`);
     }
     return string;
+}
+
+
+function makeFeaturedImages(string, meta) {
+    const { JSDOM } = jsdom;
+    global.document = new JSDOM(string).window.document;
+    var elem = document.createElement("div");
+    elem.innerHTML = string;
+
+    var postEntry = elem.getElementsByTagName("A")[0];
+
+    var containtContainer = `<div class="featured-image">
+        <figure>
+            ${postEntry.outerHTML}
+            <figcaption>${meta.title}</figcaption>
+        </figure>
+        </div>
+    <?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?>`;
+
+    postEntry.outerHTML = containtContainer;
+    return elem.innerHTML;
 }
 
 function makeContentContainer(string) {
@@ -181,8 +205,24 @@ function replaceArticleText(htmlData, meta) {
     });
 
     replace({
+        regex: `<h3>Features</h3>\n<ol class="order-large-list">`,
+        replacement: '<h3>Features</h3><ol class="order-large-list features">',
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
         regex: '<ul>',
         replacement: '<ul class="large-list">',
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: `<h3>Features</h3>\n<ul class="large-list">`,
+        replacement: '<h3>Features</h3><ul class="large-list features">',
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
@@ -230,11 +270,19 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: /<img class="(.*?)"/g,
-        replacement: `<img class="img img-responsive articleImages"`,
+        replacement: `<img class="img img-responsive"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
     });
+
+    // replace({
+    //     regex: /<img class="(.*?)"/g,
+    //     replacement: `<img class="img img-responsive articleImages"`,
+    //     paths: [`${destination || SOURCE_PATH}/article.php`],
+    //     recursive: true,
+    //     silent: true,
+    // });
 
     replace({
         regex: '.png',
@@ -276,6 +324,102 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
+    // pros and cons start
+
+    replace({
+        regex: `<h3>Pros</h3>\n<ul class="large-list">`,
+        replacement: `<h3>Pros</h3>\n<ul class="large-list props">`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: `<h3>Pros</h3>\n<ol class="order-large-list">`,
+        replacement: `<h3>Pros</h3>\n<ol class="order-large-list props">`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: `<h3>Pros</h3>`,
+        replacement: `<div class="props-and-cons"><div><h3 class="propsh3">Pros</h3>`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: `<h3>Cons</h3>\n<ul class="large-list">`,
+        replacement: `<h3>Cons</h3>\n<ul class="large-list cons">`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: `<h3>Cons</h3>\n<ol class="order-large-list">`,
+        replacement: `<h3>Cons</h3>\n<ol class="order-large-list cons">`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: `<h3>Cons</h3>`,
+        replacement: `<div><h3 class="consh3">Cons</h3>`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    if (htmlData.includes(`Pros</h3>\n<ul`)) {
+        replace({
+            regex: `</ul>`,
+            replacement: `</ul></div></div>`,
+            paths: [`${destination || SOURCE_PATH}/article.php`],
+            recursive: true,
+            silent: true,
+        });
+    } else if (htmlData.includes(`Pros</h3>\n<ul`)) {
+        replace({
+            regex: `</ol>`,
+            replacement: `</ol></div></div>`,
+            paths: [`${destination || SOURCE_PATH}/article.php`],
+            recursive: true,
+            silent: true,
+        });
+    }
+
+    replace({
+        regex: `</div>\n<div><h3 class="consh3">Cons</h3>`,
+        replacement: `<div><h3 class="consh3">Cons</h3>`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    // Pros and cons end
+
+
+    replace({
+        regex: `</a>\n<br>`,
+        replacement: `</a></p><br>`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: '<p></p>',
+        replacement: ``,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+
 }
 
 function copyTemplate() {
@@ -310,7 +454,7 @@ function compressImages(count) {
 
 function createMainImage(name, append, rate) {
     let pwd = path.resolve(__dirname, `${SOURCE_PATH}/images`);
-    pwd = destination? destination + '/images' : pwd;
+    pwd = destination ? destination + '/images' : pwd;
 
     const ext = name.split('.')[name.split('.').length - 1];
     var imageName = name.split('.').slice(0, name.split('.').length - 1).toString();
