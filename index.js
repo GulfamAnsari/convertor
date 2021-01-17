@@ -54,7 +54,7 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                 for (url of validImageURLS) {
                     if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
                         createMainImage(url, 'main', '30%');
-                        createMainImage(url, 'side', '15%');
+                        createMainImage(url, 'side', '20%');
                         logs.display('Database Images created Succesfully', 'green', true);
                     }
                 }
@@ -419,6 +419,43 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
+    if(CONSTANTS.ANDROID_DOWNLOAD) {
+        replace({
+            regex: CONSTANTS.ANDROID_DOWNLOAD,
+            replacement: `<img width="162px" height="50px" class="lazyload google-play-store-download" src="" data-src="/images/google-play-store.jpg" />`,
+            paths: [`${destination || SOURCE_PATH}/article.php`],
+            recursive: true,
+            silent: true,
+        });
+    }
+    if(CONSTANTS.IOS_DOWNLOAD) {
+        replace({
+            regex: CONSTANTS.IOS_DOWNLOAD,
+            replacement: `<img width="162px" height="50px" class="lazyload app-store-download" src="" data-src="/images/app-store.jpg" />`,
+            paths: [`${destination || SOURCE_PATH}/article.php`],
+            recursive: true,
+            silent: true,
+        });
+    }
+    if (CONSTANTS.FLIPKART_BUY) {
+        replace({
+            regex: CONSTANTS.FLIPKART_BUY,
+            replacement: `<img width="190px" height="60px" class="lazyload app-store-download" src="" data-src="/images/buy-flipkart.jpeg" />`,
+            paths: [`${destination || SOURCE_PATH}/article.php`],
+            recursive: true,
+            silent: true,
+        });
+    }
+
+    if (CONSTANTS.AMAZON_BUY) {
+        replace({
+            regex: CONSTANTS.AMAZON_BUY,
+            replacement: `<img width="190px" height="60px" class="lazyload app-store-download" src="" data-src="/images/buy-amazon.jpg" />`,
+            paths: [`${destination || SOURCE_PATH}/article.php`],
+            recursive: true,
+            silent: true,
+        });
+    }
 
 }
 
