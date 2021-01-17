@@ -55,7 +55,7 @@ class UpdateDB {
             utils.get('https://droidtechknow.com/api/dashboard_fetch_all_results.php').then((data) => {
                 logs.display('Last DB Object', 'cyan', true);
                 logs.display(JSON.stringify(data[data.length - 1]), 'cyan', true);
-                DB.article['post'] = data.length + 5;
+                DB.article['post'] = data.length + 7;
                 logs.display('New DB Object', 'blue', true);
                 logs.display(JSON.stringify(DB), 'cyan', true);
                 resolve(DB);

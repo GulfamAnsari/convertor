@@ -34,6 +34,9 @@ class ImageDownloader {
             filenames.push(filename);
             count++;
             if (count === validImageURLS.length) {
+              console.log('Count', count);
+              console.log('valid URL length', validImageURLS.length);
+              console.log("All images download successfully and promiss resolve now");
               resolve(filenames);
             }
           }, (e) => reject(e));
