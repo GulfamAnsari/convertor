@@ -3,9 +3,9 @@
 ## Installation
 
 ###Install the below required packages
-1. jpegoptim
-2. pngquant
-2. imagemagick
+1. jpegoptim -> brew install jpegoptim
+2. pngquant -> brew install pngquant
+2. imagemagick -> brew install imagemagick
 
 ## How to use the convertor
 
