@@ -419,6 +419,14 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
+    replace({
+        regex: '<strong>Step',
+        replacement: `<strong class="how-to-steps">Step`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
     if(CONSTANTS.ANDROID_DOWNLOAD) {
         replace({
             regex: CONSTANTS.ANDROID_DOWNLOAD,
