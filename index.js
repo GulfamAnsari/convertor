@@ -270,7 +270,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: /<img class="(.*?)"/g,
-        replacement: `<img class="img img-responsive"`,
+        replacement: `loading="lazy" <img class="img img-responsive"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
@@ -430,7 +430,7 @@ function replaceArticleText(htmlData, meta) {
     if(CONSTANTS.ANDROID_DOWNLOAD) {
         replace({
             regex: CONSTANTS.ANDROID_DOWNLOAD,
-            replacement: `<img width="162px" height="50px" class="lazyload google-play-store-download" src="" data-src="/images/google-play-store.jpg" />`,
+            replacement: `<img alt="Play Store Download button" loading="lazy" width="162px" height="50px" class="google-play-store-download" src="/images/google-play-store.jpg" />`,
             paths: [`${destination || SOURCE_PATH}/article.php`],
             recursive: true,
             silent: true,
@@ -439,7 +439,7 @@ function replaceArticleText(htmlData, meta) {
     if(CONSTANTS.IOS_DOWNLOAD) {
         replace({
             regex: CONSTANTS.IOS_DOWNLOAD,
-            replacement: `<img width="162px" height="50px" class="lazyload app-store-download" src="" data-src="/images/app-store.jpg" />`,
+            replacement: `<img alt="App Store Download button" loading="lazy" width="162px" height="50px" class="app-store-download" src="/images/app-store.jpg" />`,
             paths: [`${destination || SOURCE_PATH}/article.php`],
             recursive: true,
             silent: true,
@@ -448,7 +448,7 @@ function replaceArticleText(htmlData, meta) {
     if (CONSTANTS.FLIPKART_BUY) {
         replace({
             regex: CONSTANTS.FLIPKART_BUY,
-            replacement: `<img width="190px" height="60px" class="lazyload app-store-download" src="" data-src="/images/buy-flipkart.jpeg" />`,
+            replacement: `<img alt="Flipkart buy button" loading="lazy" width="190px" height="60px" class="app-store-download" src="/images/buy-flipkart.jpeg" />`,
             paths: [`${destination || SOURCE_PATH}/article.php`],
             recursive: true,
             silent: true,
@@ -458,7 +458,7 @@ function replaceArticleText(htmlData, meta) {
     if (CONSTANTS.AMAZON_BUY) {
         replace({
             regex: CONSTANTS.AMAZON_BUY,
-            replacement: `<img width="190px" height="60px" class="lazyload app-store-download" src="" data-src="/images/buy-amazon.jpg" />`,
+            replacement: `<img alt="Amazon buy button" loading="lazy" width="190px" height="60px" class="app-store-download" src="/images/buy-amazon.jpg" />`,
             paths: [`${destination || SOURCE_PATH}/article.php`],
             recursive: true,
             silent: true,
