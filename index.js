@@ -34,8 +34,8 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             logs.display('Copy Html from URL', 'green', true);
             var updatedHtml = data.htmlData;
-            // updatedHtml = replaceSrcDataSrc(updatedHtml);
-            // logs.display('Add data-src attributes', 'green', true);
+            updatedHtml = replaceSrcDataSrc(updatedHtml);
+            logs.display('Add data-src attributes', 'green', true);
             updatedHtml = makeFeaturedImages(updatedHtml, data.meta).replace(`<!--?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?-->`, `<?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?>`);
             
             updatedHtml = makeContentContainer(updatedHtml);
@@ -52,6 +52,7 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                 logs.display(validImageURLS.length + ' Images Downloaded', 'green', true);
 
                 for (url of validImageURLS) {
+                    createMainImage(url, 'blur', '10%');
                     if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
                         createMainImage(url, 'main', '30%');
                         createMainImage(url, 'side', '20%');
@@ -89,7 +90,7 @@ function replaceSrcDataSrc(string) {
         }
         const ext = src.split('.')[src.split('.').length - 1];
         var imageName = src.split('.').slice(0, src.split('.').length - 1).toString();
-        string = string.replace(`src="${src}`, `data-src="${src}" src="droidtechknow-data-src-image.svg`);
+        string = string.replace(`src="${src}`, `data-src="${src}" src="${imageName}-blur.${ext}`);
     }
     return string;
 }
@@ -270,19 +271,19 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: /<img class="(.*?)"/g,
-        replacement: `loading="lazy" <img class="img img-responsive"`,
+        replacement: `<img class="img img-responsive"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
     });
 
-    // replace({
-    //     regex: /<img class="(.*?)"/g,
-    //     replacement: `<img class="img img-responsive articleImages"`,
-    //     paths: [`${destination || SOURCE_PATH}/article.php`],
-    //     recursive: true,
-    //     silent: true,
-    // });
+    replace({
+        regex: /<img class="(.*?)"/g,
+        replacement: `<img class="img img-responsive lazyload"`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
 
     replace({
         regex: '.png',
