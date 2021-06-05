@@ -34,7 +34,7 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             logs.display('Copy Html from URL', 'green', true);
             var updatedHtml = data.htmlData;
-            updatedHtml = replaceSrcDataSrc(updatedHtml);
+            // updatedHtml = replaceSrcDataSrc(updatedHtml);
             logs.display('Add data-src attributes', 'green', true);
             updatedHtml = makeFeaturedImages(updatedHtml, data.meta).replace(`<!--?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?-->`, `<?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?>`);
             
@@ -52,10 +52,10 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                 logs.display(validImageURLS.length + ' Images Downloaded', 'green', true);
 
                 for (url of validImageURLS) {
-                    createMainImage(url, 'blur', '10%');
+                    // createMainImage(url, 'blur', '10%');
                     if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-                        createMainImage(url, 'main', '30%');
-                        createMainImage(url, 'side', '20%');
+                        createMainImage(url, 'main', '35%');
+                        createMainImage(url, 'side', '25%');
                         logs.display('Database Images created Succesfully', 'green', true);
                     }
                 }
