@@ -14,18 +14,18 @@ const jsdom = require("jsdom");
 
 
 const SPLITTED_URL = CONSTANTS.IMAGES_WEBPAGE_URL.split('/');
-const DATE = SPLITTED_URL.slice(3, 5).join('/'); // 2019/08
+const DATE = SPLITTED_URL.slice(5, 7).join('/'); // 2019/08
 const DOMAIN = SPLITTED_URL.slice(0, 3).join('/'); //https://droidtechknow.000webhostapp.com
 
-const SLUG = SOURCE_PATH = SPLITTED_URL[SPLITTED_URL.length - 1];
-const SRC_BASE_URL = DOMAIN + '/wp-content/uploads/' + DATE
+const SLUG = SOURCE_PATH = SPLITTED_URL[SPLITTED_URL.length - 1] || SPLITTED_URL[SPLITTED_URL.length - 2];
+const SRC_BASE_URL = DOMAIN + '/admin/wordpress/wp-content/uploads/' + DATE
 const TOP_IMAGE_NAME = CONSTANTS.FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
 
-logs.display(`SLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: ${TOP_IMAGE_NAME}`, 'cyan', false);
+logs.display(`DOMAIN : ${DOMAIN} \nDATE : ${DATE} \nSLUG : ${SLUG} \nSRC_BASE_URL: ${SRC_BASE_URL} \nTOP_IMAGE_NAME: ${TOP_IMAGE_NAME}`, 'cyan', false);
 
 let destination = '';
 // If not provide, folder will be in same directory
-destination = `/Users/gulfamansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}/${CONSTANTS.SUBCATAGORY ? CONSTANTS.SUBCATAGORY + '/' : ''}${SOURCE_PATH}`;
+destination = `/Users/gulfam.ansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}/${CONSTANTS.SUBCATAGORY ? CONSTANTS.SUBCATAGORY + '/' : ''}${SOURCE_PATH}`;
 logs.display(`Check Destination : ${destination}`, 'cyan', false);
 
 (function init() {
@@ -54,7 +54,7 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                 for (url of validImageURLS) {
                     // createMainImage(url, 'blur', '10%');
                     if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-                        createMainImage(url, 'main', '30%');
+                        createMainImage(url, 'main', '35%');
                         createMainImage(url, 'side', '20%');
                         logs.display('Database Images created Succesfully', 'green', true);
                     }
@@ -72,6 +72,7 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
             });
         })
     }, (err) => {
+        console.log(err)
         logs.display('Error: ' + err, 'red', true);
     });
 })();
@@ -175,13 +176,7 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
-    replace({
-        regex: 'wp-image-',
-        replacement: 'img img-responsive ',
-        paths: [`${destination || SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
+   
 
     replace({
         regex: '<h2',
@@ -272,15 +267,7 @@ function replaceArticleText(htmlData, meta) {
     });
 
     replace({
-        regex: /<img class="(.*?)"/g,
-        replacement: `<img class="img img-responsive"`,
-        paths: [`${destination || SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
-
-    replace({
-        regex: /<img class="(.*?)"/g,
+        regex: /<img loading="lazy" class="(.*?)"/g,
         replacement: `<img class="img img-responsive lazyload"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
@@ -474,6 +461,7 @@ function copyTemplate() {
     return new Promise((resolve, reject) => {
         let source = path.resolve(__dirname, 'template')
         let dest = path.resolve(__dirname, `${SOURCE_PATH}`);
+        console.log("Soyrce path", SOURCE_PATH)
         fs.copy(source, destination || dest)
             .then((completed) => {
                 resolve(completed);

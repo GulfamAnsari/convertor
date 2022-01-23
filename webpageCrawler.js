@@ -16,16 +16,19 @@ class WebpageCrawler {
                         var title = res.$('title').text();
                         var tags = '';
                         var description = '';
+                        
+                        for (var index of Object.keys(res.$('a[rel="tag"]'))) {
+                            if (res.$('a[rel="tag"]') && res.$('a[rel="tag"]')[index].children && res.$('a[rel="tag"]')[index].children[0] && res.$('a[rel="tag"]')[index].children[0].data) {
+                                tags = `${tags? tags + ', ': ''}${res.$('a[rel="tag"]')[index].children[0].data}`
+                            }
+                        }
                         for (var index of Object.keys(res.$('meta'))) {
-                            if (res.$('meta')[index] && res.$('meta')[index].attribs && res.$('meta')[index].attribs.property && res.$('meta')[index].attribs.property == 'article:tag') {
-                                tags = `${tags? tags + ', ': ''}${res.$('meta')[index].attribs.content}`
-                            } 
                             if (res.$('meta')[index] && res.$('meta')[index].attribs && res.$('meta')[index].attribs.name && res.$('meta')[index].attribs.name == 'description') {
                                 description = `${res.$('meta')[index].attribs.content}`;
                             }
                         }
                         const data = {
-                            htmlData: $('.post-entry').html(), 
+                            htmlData: $('.entry-content').html(), 
                             meta:  { title, tags, description }
                         };
                         resolve(data);
