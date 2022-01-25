@@ -54,8 +54,8 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
                 for (url of validImageURLS) {
                     // createMainImage(url, 'blur', '10%');
                     if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-                        createMainImage(url, 'main', '35%');
-                        createMainImage(url, 'side', '20%');
+                        createMainImage(url, 'main', '45%');
+                        createMainImage(url, 'side', '30%');
                         logs.display('Database Images created Succesfully', 'green', true);
                     }
                 }
@@ -298,6 +298,14 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
+    replace({
+        regex: 'style="font-weight: 400;"',
+        replacement: ``,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+    
     replace({
         regex: /srcset="(.*?)"/g,
         replacement: ``,

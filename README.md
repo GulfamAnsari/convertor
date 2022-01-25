@@ -2,7 +2,7 @@
 
 ## Installation
 
-###Install the below required packages
+### Install the below required packages
 1. jpegoptim -> brew install jpegoptim
 2. pngquant -> brew install pngquant
 2. imagemagick -> brew install imagemagick

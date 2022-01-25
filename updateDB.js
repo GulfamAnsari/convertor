@@ -22,7 +22,7 @@ class UpdateDB {
     createDbObject(htmlData, meta) {
         const SPLITTED_URL = CONSTANTS.IMAGES_WEBPAGE_URL.split('/');
         const TOP_IMAGE_NAME = CONSTANTS.FOCUS_KEYWORD.replace(/ /g, '-').toLocaleLowerCase();
-        const SLUG = SPLITTED_URL[SPLITTED_URL.length - 1];
+        const SLUG = SPLITTED_URL[SPLITTED_URL.length - 1] || SPLITTED_URL[SPLITTED_URL.length - 2];
         const articleLink = `/${CONSTANTS.CATAGORY}/${CONSTANTS.SUBCATAGORY ? CONSTANTS.SUBCATAGORY + '/' : ''}${SLUG}/`;
         const imageLink = `${articleLink}images/${TOP_IMAGE_NAME}-main.jpg`;
         const imageLink2 = `${articleLink}images/${TOP_IMAGE_NAME}-side.jpg`;
