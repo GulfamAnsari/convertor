@@ -28,7 +28,7 @@ class WebpageCrawler {
                             }
                         }
                         const data = {
-                            htmlData: $('.entry-content').html(), 
+                            htmlData: $('.item-detail').html(), 
                             meta:  { title, tags, description }
                         };
                         resolve(data);

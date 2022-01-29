@@ -28,57 +28,85 @@ let destination = '';
 destination = `/Users/gulfam.ansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}/${CONSTANTS.SUBCATAGORY ? CONSTANTS.SUBCATAGORY + '/' : ''}${SOURCE_PATH}`;
 logs.display(`Check Destination : ${destination}`, 'cyan', false);
 
-(function init() {
-    copyTemplate().then((completed) => {
-        logs.display('Copy completed', 'green', true);
-        webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
-            logs.display('Copy Html from URL', 'green', true);
-            var updatedHtml = data.htmlData;
-            updatedHtml = replaceSrcDataSrc(updatedHtml);
-            logs.display('Add data-src attributes', 'green', true);
-            updatedHtml = makeFeaturedImages(updatedHtml, data.meta).replace(`<!--?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?-->`, `<?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?>`);
-            
-            updatedHtml = makeContentContainer(updatedHtml);
-            logs.display('Content container added', 'green', true);
-            replaceArticleText(updatedHtml, data.meta);
-            logs.display('Replace completed', 'green', true);
-            if (!fileSys.existsSync(destination ? destination + '/images' : SOURCE_PATH + '/images')) {
-                fileSys.mkdirSync(destination ? destination + '/images' : SOURCE_PATH + '/images');
-                logs.display('Image folder created', 'green', true);
-            } else {
-                logs.display('Image folder already there', 'cyan', true);
-            }
-            imageDownloader.init(CONSTANTS.IMAGES_WEBPAGE_URL, destination || SOURCE_PATH).then((validImageURLS) => {
-                logs.display(validImageURLS.length + ' Images Downloaded', 'green', true);
-
-                for (url of validImageURLS) {
-                    // createMainImage(url, 'blur', '10%');
-                    if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-                        createMainImage(url, 'main', '45%');
-                        createMainImage(url, 'side', '30%');
-                        logs.display('Database Images created Succesfully', 'green', true);
-                    }
-                }
-                const count = validImageURLS.length;
-                logs.display(`Waiting... Files are in quque for compression`, 'blue', true);
-                setTimeout(() => {
-                    compressImages(count).then((count) => {
-                        logs.display(`${count} files Compressed Successfully`, 'green', true);
-                    }, (err) => logs.display('Error: ' + err, 'red', true));
-                }, 5000);
-
-            }, (err) => {
-                logs.display('Error: ' + err, 'red', true);
-            });
-        })
-    }, (err) => {
-        console.log(err)
-        logs.display('Error: ' + err, 'red', true);
-    });
+(async function init() {
+    const imagesList = await downloadImageAndCompress();
+    await copyTemplate();
+    webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
+        logs.display('Copy Html from URL', 'green', true);
+        var updatedHtml = data.htmlData;
+        updatedHtml = replaceSrcDataSrc(updatedHtml, imagesList);
+        logs.display('Add data-src attributes', 'green', true);
+        updatedHtml = makeFeaturedImages(updatedHtml, data.meta).replace(`<!--?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?-->`, `<?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?>`);
+        updatedHtml = makeContentContainer(updatedHtml);
+        logs.display('Content container added', 'green', true);
+        replaceArticleText(updatedHtml, data.meta);
+        logs.display('Replace completed', 'green', true);
+    })
 })();
 
-function replaceSrcDataSrc(string) {
-    const { JSDOM } = jsdom;
+function downloadImageAndCompress() {
+    return new Promise((res, rej) => {
+        // Checking if image folder already exsits or not -> Create one if not exists
+        if (!fileSys.existsSync(destination ? destination + '/images' : SOURCE_PATH + '/images')) {
+            fileSys.mkdirSync(destination ? destination + '/images' : SOURCE_PATH + '/images');
+            logs.display('Image folder created', 'green', true);
+        } else {
+            logs.display('Image folder already there', 'cyan', true);
+        }
+        // downloading images into image folder
+        imageDownloader.init(CONSTANTS.IMAGES_WEBPAGE_URL, destination || SOURCE_PATH).then((validImageURLS) => {
+            logs.display(validImageURLS.length + ' Images Downloaded', 'green', true);
+            createDBImages(validImageURLS);
+            logs.display(`Waiting... Files are in quque for compression`, 'blue', true);
+            const count = validImageURLS.length;
+            setTimeout(() => {
+                compressImages(count).then(() => {
+                    logs.display(`${count} files Compressed Successfully`, 'green', true);
+                    getImageSize().then(imageSize => {
+                        res(imageSize);
+                    }, (err) => {
+                        logs.display(`Erro: ${err}`, 'red', true);
+                    });
+                }, (err) => logs.display('Error: ' + err, 'red', true));
+            }, 3000);
+        }, (err) => {
+            logs.display('Error: ' + err, 'red', true);
+        });
+    })
+}
+
+function createDBImages(validImageURLS) {
+    for (url of validImageURLS) {
+        // createMainImage(url, 'blur', '10%');
+        if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
+            createMainImage(url, 'main', '45%');
+            createMainImage(url, 'side', '30%');
+            logs.display('Database Images created Succesfully', 'green', true);
+        }
+    }
+}
+
+
+function getImageSize() {
+    return new Promise((resolve, reject) => {
+        let pwd = path.resolve(__dirname, destination || SOURCE_PATH) + "/images";
+        const sizeOf = require('image-size');
+        const imageWithSize = {};
+        fs.readdirSync(pwd).forEach(file => {
+            const dimensions = sizeOf(`${pwd}/${file}`);
+            imageWithSize[file] = {
+                ...dimensions,
+                name: file
+            };
+        });
+        resolve(imageWithSize);
+    })
+}
+
+function replaceSrcDataSrc(string, imageList) {
+    const {
+        JSDOM
+    } = jsdom;
     global.document = new JSDOM(string).window.document;
 
     var elem = document.createElement("div");
@@ -91,16 +119,21 @@ function replaceSrcDataSrc(string) {
         }
         const ext = src.split('.')[src.split('.').length - 1];
         var imageName = src.split('.').slice(0, src.split('.').length - 1).toString();
+        let actualImageName = imageName.split("/")[imageName.split("/").length - 1];
         // let srcAdd = `${imageName}-blur.${ext}`;
-        let srcAdd = ``;
-        string = string.replace(`src="${src}`, `data-src="${src}" src="${srcAdd}`);
+        let height = `${imageList[`${actualImageName}.jpg`].height}`;
+        let width = `${imageList[`${actualImageName}.jpg`].width}`;
+        let srcAdd = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'></svg>`;
+        string = string.replace(`src="${src}"`, `data-src="${src}" src="${srcAdd}" width="${width}" height="${height}"`);
     }
     return string;
 }
 
 
 function makeFeaturedImages(string, meta) {
-    const { JSDOM } = jsdom;
+    const {
+        JSDOM
+    } = jsdom;
     global.document = new JSDOM(string).window.document;
     var elem = document.createElement("div");
     elem.innerHTML = string;
@@ -120,7 +153,9 @@ function makeFeaturedImages(string, meta) {
 }
 
 function makeContentContainer(string) {
-    const { JSDOM } = jsdom;
+    const {
+        JSDOM
+    } = jsdom;
     global.document = new JSDOM(string).window.document;
     var elem = document.createElement("div");
     elem.innerHTML = string;
@@ -176,7 +211,7 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
-   
+
 
     replace({
         regex: '<h2',
@@ -250,24 +285,33 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
-    replace({
-        regex: /width="([0-9]+)"/g,
-        replacement: `width="100%"`,
-        paths: [`${destination || SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
+    // replace({
+    //     regex: /width="([0-9]+)"/g,
+    //     replacement: `width="100%"`,
+    //     paths: [`${destination || SOURCE_PATH}/article.php`],
+    //     recursive: true,
+    //     silent: true,
+    // });
 
-    replace({
-        regex: /height="([0-9]+)"/g,
-        replacement: ``,
-        paths: [`${destination || SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
+    // replace({
+    //     regex: /height="([0-9]+)"/g,
+    //     replacement: ``,
+    //     paths: [`${destination || SOURCE_PATH}/article.php`],
+    //     recursive: true,
+    //     silent: true,
+    // });
 
     replace({
         regex: /<img loading="lazy" class="(.*?)"/g,
+        replacement: `<img class="img img-responsive lazyload"`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+
+    replace({
+        regex: /<img class="(.*?)"/g,
         replacement: `<img class="img img-responsive lazyload"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
@@ -305,7 +349,7 @@ function replaceArticleText(htmlData, meta) {
         recursive: true,
         silent: true,
     });
-    
+
     replace({
         regex: /srcset="(.*?)"/g,
         replacement: ``,
@@ -425,7 +469,7 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
-    if(CONSTANTS.ANDROID_DOWNLOAD) {
+    if (CONSTANTS.ANDROID_DOWNLOAD) {
         replace({
             regex: CONSTANTS.ANDROID_DOWNLOAD,
             replacement: `<img alt="Play Store Download button" loading="lazy" width="162px" height="50px" class="google-play-store-download" src="/images/google-play-store.jpg" />`,
@@ -434,7 +478,7 @@ function replaceArticleText(htmlData, meta) {
             silent: true,
         });
     }
-    if(CONSTANTS.IOS_DOWNLOAD) {
+    if (CONSTANTS.IOS_DOWNLOAD) {
         replace({
             regex: CONSTANTS.IOS_DOWNLOAD,
             replacement: `<img alt="App Store Download button" loading="lazy" width="162px" height="50px" class="app-store-download" src="/images/app-store.jpg" />`,
@@ -469,12 +513,12 @@ function copyTemplate() {
     return new Promise((resolve, reject) => {
         let source = path.resolve(__dirname, 'template')
         let dest = path.resolve(__dirname, `${SOURCE_PATH}`);
-        console.log("Soyrce path", SOURCE_PATH)
         fs.copy(source, destination || dest)
             .then((completed) => {
                 resolve(completed);
             })
             .catch(err => {
+                logs.display('Error: ' + err, 'red', true);
                 reject(err);
             })
     })
@@ -484,13 +528,13 @@ function compressImages(count) {
     return new Promise((resolve, reject) => {
         let pwd = path.resolve(__dirname, destination || SOURCE_PATH);
         const myShellScript = exec(`sh image-convertor.sh ${pwd}/images/`);
-        myShellScript.stdout.on('data', (data) => {
-            logs.display(data, 'blue', false);
-            if (data.includes(count + ' file')) {
-                resolve(count)
+        myShellScript.stdout.on("data", (data) => {
+            if (data.includes("Average compression")) {
+                resolve();
             }
+            logs.display(data, 'blue', false);
         });
-        myShellScript.stderr.on('data', (err) => {
+        myShellScript.stderr.on("data", (err) => {
             reject(err);
         });
     })
