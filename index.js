@@ -48,6 +48,7 @@ function downloadImageAndCompress() {
     return new Promise((res, rej) => {
         // Checking if image folder already exsits or not -> Create one if not exists
         if (!fileSys.existsSync(destination ? destination + '/images' : SOURCE_PATH + '/images')) {
+            fileSys.mkdirSync(destination ? destination : SOURCE_PATH);
             fileSys.mkdirSync(destination ? destination + '/images' : SOURCE_PATH + '/images');
             logs.display('Image folder created', 'green', true);
         } else {
