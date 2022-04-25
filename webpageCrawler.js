@@ -16,10 +16,17 @@ class WebpageCrawler {
                         var title = res.$('title').text();
                         var tags = '';
                         var description = '';
-                        
+
+                        // if tags meta is present
                         for (var index of Object.keys(res.$('a[rel="tag"]'))) {
                             if (res.$('a[rel="tag"]') && res.$('a[rel="tag"]')[index].children && res.$('a[rel="tag"]')[index].children[0] && res.$('a[rel="tag"]')[index].children[0].data) {
                                 tags = `${tags? tags + ', ': ''}${res.$('a[rel="tag"]')[index].children[0].data}`
+                            }
+                        }
+                        // if tags meta are not present
+                        for (var index of Object.keys(res.$('.tag-blue'))) {
+                            if (res.$('.tag-blue') && res.$('.tag-blue')[index].children && res.$('.tag-blue')[index].children[0] && res.$('.tag-blue')[index].children[0].data) {
+                                tags = `${tags? tags + ', ': ''}${res.$('.tag-blue')[index].children[0].data}`
                             }
                         }
                         for (var index of Object.keys(res.$('meta'))) {
