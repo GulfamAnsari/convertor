@@ -29,8 +29,17 @@ destination = `/Users/gulfam.ansari/Personal/droidtechknow/${CONSTANTS.CATAGORY}
 logs.display(`Check Destination : ${destination}`, 'cyan', false);
 
 (async function init() {
-    const imagesList = await downloadImageAndCompress();
-    await copyTemplate();
+    let imagesList = {}
+    try {
+        imagesList = await downloadImageAndCompress();
+    } catch(error) {
+        logs.display(`Error: ${error}`, 'red', true);
+    }
+    try {
+        await copyTemplate();
+    } catch(error) {
+        logs.display(`Erro: ${error}`, 'red', true);
+    }
     webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
         logs.display('Copy Html from URL', 'green', true);
         var updatedHtml = data.htmlData;
@@ -66,12 +75,12 @@ function downloadImageAndCompress() {
                     getImageSize().then(imageSize => {
                         res(imageSize);
                     }, (err) => {
-                        logs.display(`Erro: ${err}`, 'red', true);
+                        rej(err)
                     });
-                }, (err) => logs.display('Error: ' + err, 'red', true));
+                }, (err) => rej(err));
             }, 3000);
         }, (err) => {
-            logs.display('Error: ' + err, 'red', true);
+            rej(err);
         });
     })
 }
@@ -313,7 +322,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: /<img class="(.*?)"/g,
-        replacement: `<img class="img img-responsive lazyload"`,
+        replacement: `<img class="img img-responsive lazyload shimmer"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
