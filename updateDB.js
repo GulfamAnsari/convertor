@@ -27,8 +27,7 @@ class UpdateDB {
         const imageLink = `${articleLink}images/${TOP_IMAGE_NAME}-main.jpg`;
         const imageLink2 = `${articleLink}images/${TOP_IMAGE_NAME}-side.jpg`;
         const DB = {
-            "username": CONSTANTS.USERNAME,
-            "password": CONSTANTS.PASSWORD,
+            "key": CONSTANTS.KEY,
             "article": {
                 "articleTitle": meta.title,
                 "articleDescription": meta.description,
