@@ -25,10 +25,9 @@ class WebpageCrawler {
                             }
                         }
                         // if tags meta are not present
-                        for (var index of Object.keys(res.$('.tag-blue'))) {
-                            if (res.$('.tag-blue') && res.$('.tag-blue')[index].children && res.$('.tag-blue')[index].children[0] && res.$('.tag-blue')[index].children[0].data) {
-                                tags = `${tags? tags + ', ': ''}${res.$('.tag-blue')[index].children[0].data}`
-                            }
+                        for (var value of Object.values(res.$('.articleTag'))) {
+                            if (value?.children?.[0]?.data) 
+                                tags = `${tags? tags + ', ': ''}${value?.children?.[0]?.data}`
                         }
                         if (!tags) {
                             tags = CONSTANTS.TAGS;
