@@ -89,8 +89,8 @@ function createDBImages(validImageURLS) {
     for (url of validImageURLS) {
         // createMainImage(url, 'blur', '10%');
         if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-            createMainImage(url, 'main', '45%');
-            createMainImage(url, 'side', '30%');
+            createMainImage(url, 'main', '30%');
+            createMainImage(url, 'side', '20%');
             logs.display('Database Images created Succesfully', 'green', true);
         }
     }
@@ -118,10 +118,10 @@ function replaceSrcDataSrc(string, imageList) {
         JSDOM
     } = jsdom;
     global.document = new JSDOM(string).window.document;
-
-    var elem = document.createElement("div");
-    elem.innerHTML = string;
-    var images = elem.getElementsByTagName("img");
+    
+    let element = document.createElement("div");
+    element.innerHTML = string;
+    var images = element.getElementsByClassName("img");
     for (var i = 0; i < images.length; i++) {
         var src = images[i].src;
         if (images[i].src[images[i].src.length - 1] === '/') {
@@ -131,8 +131,8 @@ function replaceSrcDataSrc(string, imageList) {
         var imageName = src.split('.').slice(0, src.split('.').length - 1).toString();
         let actualImageName = imageName.split("/")[imageName.split("/").length - 1];
         // let srcAdd = `${imageName}-blur.${ext}`;
-        let height = `${imageList[`${actualImageName}.jpg`].height}`;
-        let width = `${imageList[`${actualImageName}.jpg`].width}`;
+        let height = `${(imageList[`${actualImageName}.jpg`] || imageList[`${actualImageName}.jpeg`]).height}`;
+        let width = `${(imageList[`${actualImageName}.jpg`] || imageList[`${actualImageName}.jpeg`]).width}`;
         let srcAdd = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'></svg>`;
         string = string.replace(`src="${src}"`, `data-src="${src}" src="${srcAdd}" width="${width}" height="${height}"`);
     }

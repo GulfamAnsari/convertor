@@ -1,5 +1,6 @@
 var Crawler = require("crawler");
 const cheerio = require('cheerio');
+var CONSTANTS = require('./constants')
 
 class WebpageCrawler {
 
@@ -29,13 +30,16 @@ class WebpageCrawler {
                                 tags = `${tags? tags + ', ': ''}${res.$('.tag-blue')[index].children[0].data}`
                             }
                         }
+                        if (!tags) {
+                            tags = CONSTANTS.TAGS;
+                        }
                         for (var index of Object.keys(res.$('meta'))) {
                             if (res.$('meta')[index] && res.$('meta')[index].attribs && res.$('meta')[index].attribs.name && res.$('meta')[index].attribs.name == 'description') {
                                 description = `${res.$('meta')[index].attribs.content}`;
                             }
                         }
                         const data = {
-                            htmlData: $('.item-detail').html(), 
+                            htmlData: $('.entry-content').html(), 
                             meta:  { title, tags, description }
                         };
                         resolve(data);
