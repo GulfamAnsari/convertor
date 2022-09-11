@@ -89,8 +89,8 @@ function createDBImages(validImageURLS) {
     for (url of validImageURLS) {
         // createMainImage(url, 'blur', '10%');
         if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-            createMainImage(url, 'main', '30%');
-            createMainImage(url, 'side', '20%');
+            createMainImage(url, 'main', '35%');
+            createMainImage(url, 'side', '25%');
             logs.display('Database Images created Succesfully', 'green', true);
         }
     }
@@ -114,27 +114,11 @@ function getImageSize() {
 }
 
 function replaceSrcDataSrc(string, imageList) {
-    const {
-        JSDOM
-    } = jsdom;
-    global.document = new JSDOM(string).window.document;
-    
-    let element = document.createElement("div");
-    element.innerHTML = string;
-    var images = element.getElementsByClassName("img");
-    for (var i = 0; i < images.length; i++) {
-        var src = images[i].src;
-        if (images[i].src[images[i].src.length - 1] === '/') {
-            src = src.slice(0, -1);
-        }
-        const ext = src.split('.')[src.split('.').length - 1];
-        var imageName = src.split('.').slice(0, src.split('.').length - 1).toString();
-        let actualImageName = imageName.split("/")[imageName.split("/").length - 1];
-        // let srcAdd = `${imageName}-blur.${ext}`;
-        let height = `${(imageList[`${actualImageName}.jpg`] || imageList[`${actualImageName}.jpeg`]).height}`;
-        let width = `${(imageList[`${actualImageName}.jpg`] || imageList[`${actualImageName}.jpeg`]).width}`;
-        let srcAdd = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'></svg>`;
-        string = string.replace(`src="${src}"`, `data-src="${src}" src="${srcAdd}" width="${width}" height="${height}"`);
+    string = string.replaceAll('src="', 'data-src="');
+
+    for (var imgObject of Object.values(imageList)) {
+        let srcAdd = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${imgObject.width} ${imgObject.height}'></svg>`;
+        string = string.replace(`width="${imgObject.width}" height="${imgObject.height}"`, `src="${srcAdd}" width="${imgObject.width}" height="${imgObject.height}"`);
     }
     return string;
 }
@@ -311,13 +295,13 @@ function replaceArticleText(htmlData, meta) {
     //     silent: true,
     // });
 
-    replace({
-        regex: /<img loading="lazy" class="(.*?)"/g,
-        replacement: `<img class="img img-responsive lazyload"`,
-        paths: [`${destination || SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
+    // replace({
+    //     regex: /<img loading="lazy" class="(.*?)"/g,
+    //     replacement: `<img class="img img-responsive lazyload"`,
+    //     paths: [`${destination || SOURCE_PATH}/article.php`],
+    //     recursive: true,
+    //     silent: true,
+    // });
 
 
     replace({
