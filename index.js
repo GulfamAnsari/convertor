@@ -32,12 +32,12 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
     let imagesList = {}
     try {
         imagesList = await downloadImageAndCompress();
-    } catch(error) {
+    } catch (error) {
         logs.display(`Error: ${error}`, 'red', true);
     }
     try {
         await copyTemplate();
-    } catch(error) {
+    } catch (error) {
         logs.display(`Erro: ${error}`, 'red', true);
     }
     webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
@@ -89,8 +89,8 @@ function createDBImages(validImageURLS) {
     for (url of validImageURLS) {
         // createMainImage(url, 'blur', '10%');
         if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-            createMainImage(url, 'main', '35%');
-            createMainImage(url, 'side', '25%');
+            createMainImage(url, 'main', '55%');
+            createMainImage(url, 'side', '35%');
             logs.display('Database Images created Succesfully', 'green', true);
         }
     }
@@ -306,7 +306,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: /<img class="(.*?)"/g,
-        replacement: `<img class="img img-responsive lazyload shimmer"`,
+        replacement: `<img class="img img-responsive lazyload shimmer img-center"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
@@ -462,6 +462,15 @@ function replaceArticleText(htmlData, meta) {
         recursive: true,
         silent: true,
     });
+
+    replace({
+        regex: 'target="_blank"',
+        replacement: `target="_blank" rel="nofollow noindex, noopener"`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
 
     if (CONSTANTS.ANDROID_DOWNLOAD) {
         replace({
