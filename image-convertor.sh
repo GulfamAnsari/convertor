@@ -8,7 +8,7 @@ echo $INPUT_IMAGES_FILE_PATH
 echo "#############################################################"
 
 # Convert all images to .png
-mogrify -format jpg $INPUT_IMAGES_FILE_PATH'*.png' # Error if there is no  PNG file in the folder
+mogrify -format jpg $INPUT_IMAGES_FILE_PATH'*.png' # Error if there is no  jpg file in the folder
 
 # remove all png
 sudo rm -rf -d $INPUT_IMAGES_FILE_PATH*.png
@@ -25,7 +25,7 @@ find $INPUT_IMAGES_FILE_PATH -regex '.*\.\(PNG\|png\)' -exec pngquant --force --
 # -m80 = 80% compression rate
 # -p = preserve the modification time
 # -t = print total after processing the files
-jpegoptim $INPUT_IMAGES_FILE_PATH* -m80 -o -p -t
+jpegoptim $INPUT_IMAGES_FILE_PATH* -m100 -o -p -t
 
 # cleanup
 sudo rm -rf $INPUT_IMAGES_FILE_PATH/demo.jpg

@@ -43,11 +43,11 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
     webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
         logs.display('Copy Html from URL', 'green', true);
         var updatedHtml = data.htmlData;
-        updatedHtml = replaceSrcDataSrc(updatedHtml, imagesList);
-        logs.display('Add data-src attributes', 'green', true);
         updatedHtml = makeFeaturedImages(updatedHtml, data.meta).replace(`<!--?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?-->`, `<?php include($_SERVER['DOCUMENT_ROOT'] . '/featuredShareAndComment.php');?>`);
         updatedHtml = makeContentContainer(updatedHtml);
         logs.display('Content container added', 'green', true);
+        updatedHtml = replaceSrcDataSrc(updatedHtml, imagesList);
+        logs.display('Add data-src attributes', 'green', true);
         replaceArticleText(updatedHtml, data.meta);
         logs.display('Replace completed', 'green', true);
     })
@@ -89,8 +89,8 @@ function createDBImages(validImageURLS) {
     for (url of validImageURLS) {
         // createMainImage(url, 'blur', '10%');
         if (url.split('/')[url.split('/').length - 1].includes(TOP_IMAGE_NAME)) {
-            createMainImage(url, 'main', '55%');
-            createMainImage(url, 'side', '35%');
+            createMainImage(url, 'main', '40%');
+            createMainImage(url, 'side', '20%');
             logs.display('Database Images created Succesfully', 'green', true);
         }
     }
@@ -115,10 +115,17 @@ function getImageSize() {
 
 function replaceSrcDataSrc(string, imageList) {
     string = string.replaceAll('src="', 'data-src="');
+    string = string.replaceAll(/height="([0-9]+)"/g, '');
+    string = string.replaceAll(/width="([0-9]+)"/g, '');
 
     for (var imgObject of Object.values(imageList)) {
+        const png = imgObject.name.split(".")[0] + ".png";
+        const jpg = imgObject.name.split(".")[0] + ".jpg";
+        const jpeg = imgObject.name.split(".")[0] + ".jpeg";
         let srcAdd = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${imgObject.width} ${imgObject.height}'></svg>`;
-        string = string.replace(`width="${imgObject.width}" height="${imgObject.height}"`, `src="${srcAdd}" width="${imgObject.width}" height="${imgObject.height}"`);
+        if (string.includes(png)) string = string.replace(`${png}" alt="`, `${jpg}" src="${srcAdd}" width="${imgObject.width}" height="${imgObject.height}" alt="`);
+        if (string.includes(jpg)) string = string.replace(`${jpg}" alt="`, `${jpg}" src="${srcAdd}" width="${imgObject.width}" height="${imgObject.height}" alt="`);
+        if (string.includes(jpeg)) string = string.replace(`${jpeg}" alt="`, `${jpg}" src="${srcAdd}" width="${imgObject.width}" height="${imgObject.height}" alt="`);
     }
     return string;
 }
@@ -281,7 +288,7 @@ function replaceArticleText(htmlData, meta) {
 
     // replace({
     //     regex: /width="([0-9]+)"/g,
-    //     replacement: `width="100%"`,
+    //     replacement: ``,
     //     paths: [`${destination || SOURCE_PATH}/article.php`],
     //     recursive: true,
     //     silent: true,
@@ -294,15 +301,6 @@ function replaceArticleText(htmlData, meta) {
     //     recursive: true,
     //     silent: true,
     // });
-
-    // replace({
-    //     regex: /<img loading="lazy" class="(.*?)"/g,
-    //     replacement: `<img class="img img-responsive lazyload"`,
-    //     paths: [`${destination || SOURCE_PATH}/article.php`],
-    //     recursive: true,
-    //     silent: true,
-    // });
-
 
     replace({
         regex: /<img class="(.*?)"/g,
@@ -319,6 +317,14 @@ function replaceArticleText(htmlData, meta) {
         recursive: true,
         silent: true,
     });
+
+    // replace({
+    //     regex: 'src="',
+    //     replacement: `data-src="`,
+    //     paths: [`${destination || SOURCE_PATH}/article.php`],
+    //     recursive: true,
+    //     silent: true,
+    // });
 
     replace({
         regex: '<p><a',
@@ -465,7 +471,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: 'target="_blank"',
-        replacement: `target="_blank" rel="nofollow noindex, noopener"`,
+        replacement: `target="_blank" rel="nofollow noindex noopener"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,
