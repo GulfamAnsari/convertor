@@ -117,16 +117,19 @@ function replaceSrcDataSrc(string, imageList) {
     string = string.replaceAll('src="', 'data-src="');
     string = string.replaceAll(/height="([0-9]+)"/g, '');
     string = string.replaceAll(/width="([0-9]+)"/g, '');
-
     for (var imgObject of Object.values(imageList)) {
+        let width = imgObject.width;
+        let height = imgObject.height;
+
         const png = imgObject.name.split(".")[0] + ".png";
         const jpg = imgObject.name.split(".")[0] + ".jpg";
         const jpeg = imgObject.name.split(".")[0] + ".jpeg";
-        let srcAdd = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${imgObject.width} ${imgObject.height}'></svg>`;
-        if (string.includes(png)) string = string.replace(`${png}" alt="`, `${jpg}" src="${srcAdd}" width="${imgObject.width}" height="${imgObject.height}" alt="`);
-        if (string.includes(jpg)) string = string.replace(`${jpg}" alt="`, `${jpg}" src="${srcAdd}" width="${imgObject.width}" height="${imgObject.height}" alt="`);
-        if (string.includes(jpeg)) string = string.replace(`${jpeg}" alt="`, `${jpg}" src="${srcAdd}" width="${imgObject.width}" height="${imgObject.height}" alt="`);
+        let srcAdd = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'></svg>`;
+        if (string.includes(png)) string = string.replace(`${png}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height=${height}" alt="`);
+        if (string.includes(jpg)) string = string.replace(`${jpg}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height=${height}" alt="`);
+        if (string.includes(jpeg)) string = string.replace(`${jpeg}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height=${height}" alt="`);
     }
+
     return string;
 }
 
@@ -469,13 +472,13 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
-    replace({
-        regex: 'target="_blank"',
-        replacement: `target="_blank" rel="nofollow noindex noopener"`,
-        paths: [`${destination || SOURCE_PATH}/article.php`],
-        recursive: true,
-        silent: true,
-    });
+    // replace({
+    //     regex: 'target="_blank"',
+    //     replacement: `target="_blank" rel="nofollow noindex noopener"`,
+    //     paths: [`${destination || SOURCE_PATH}/article.php`],
+    //     recursive: true,
+    //     silent: true,
+    // });
 
 
     if (CONSTANTS.ANDROID_DOWNLOAD) {
