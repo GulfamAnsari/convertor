@@ -50,8 +50,28 @@ logs.display(`Check Destination : ${destination}`, 'cyan', false);
         logs.display('Add data-src attributes', 'green', true);
         replaceArticleText(updatedHtml, data.meta);
         logs.display('Replace completed', 'green', true);
+        validateAndFixHTML(updatedHtml);
+        logs.display('Fixed HTML', 'green', true);
     })
 })();
+
+function validateAndFixHTML(htmlString) {
+    let url = `${destination || SOURCE_PATH}/article.php`;
+    var fs = require('fs');
+    var text = fs.readFileSync(url,'utf8');
+    const {
+        JSDOM
+    } = jsdom;
+    global.document = new JSDOM(text).window.document;
+    replace({
+        regex: /<div class="post-entry">([^]*?)<!-- article body end -->/,
+        replacement: `<div class="post-entry">${document.getElementsByClassName("post-entry")[0].innerHTML}</div><!-- article body end -->`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+    return document.querySelector("body").innerHTML;
+}
 
 function downloadImageAndCompress() {
     return new Promise((res, rej) => {
@@ -118,16 +138,16 @@ function replaceSrcDataSrc(string, imageList) {
     string = string.replaceAll(/height="([0-9]+)"/g, '');
     string = string.replaceAll(/width="([0-9]+)"/g, '');
     for (var imgObject of Object.values(imageList)) {
-        let width = imgObject.width;
-        let height = imgObject.height;
+        let width = Math.floor(imgObject.width / 1.5);
+        let height =  Math.floor(imgObject.height / 1.5);
 
         const png = imgObject.name.split(".")[0] + ".png";
         const jpg = imgObject.name.split(".")[0] + ".jpg";
         const jpeg = imgObject.name.split(".")[0] + ".jpeg";
         let srcAdd = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'></svg>`;
-        if (string.includes(png)) string = string.replace(`${png}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height=${height}" alt="`);
-        if (string.includes(jpg)) string = string.replace(`${jpg}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height=${height}" alt="`);
-        if (string.includes(jpeg)) string = string.replace(`${jpeg}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height=${height}" alt="`);
+        if (string.includes(png)) string = string.replace(`${png}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height="${height}" alt="`);
+        if (string.includes(jpg)) string = string.replace(`${jpg}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height="${height}" alt="`);
+        if (string.includes(jpeg)) string = string.replace(`${jpeg}" alt="`, `${jpg}" src="${srcAdd}" width="${width}" height="${height}" alt="`);
     }
 
     return string;
@@ -321,6 +341,15 @@ function replaceArticleText(htmlData, meta) {
         silent: true,
     });
 
+    replace({
+        regex: 'target="_blank"><img',
+        replacement: `><img`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+
     // replace({
     //     regex: 'src="',
     //     replacement: `data-src="`,
@@ -471,6 +500,55 @@ function replaceArticleText(htmlData, meta) {
         recursive: true,
         silent: true,
     });
+
+    replace({
+        regex: '<strong>',
+        replacement: `<strong> `,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+    replace({
+        regex: '</strong>',
+        replacement: ` </strong>`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+    replace({
+        regex: ' </strong> ',
+        replacement: ` </strong>`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    replace({
+        regex: ' <strong> ',
+        replacement: `<strong>`,
+        paths: [`${destination || SOURCE_PATH}/article.php`],
+        recursive: true,
+        silent: true,
+    });
+
+    
+    // replace({
+    //     regex: ' </strong>.',
+    //     replacement: `</strong>.`,
+    //     paths: [`${destination || SOURCE_PATH}/article.php`],
+    //     recursive: true,
+    //     silent: true,
+    // });
+
+    // replace({
+    //     regex: ' </strong>,',
+    //     replacement: `</strong>,`,
+    //     paths: [`${destination || SOURCE_PATH}/article.php`],
+    //     recursive: true,
+    //     silent: true,
+    // });
+    
+
 
     // replace({
     //     regex: 'target="_blank"',
