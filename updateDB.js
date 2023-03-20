@@ -41,7 +41,7 @@ class UpdateDB {
                 "subCatagory": CONSTANTS.SUBCATAGORY,
                 "author": CONSTANTS.AUTHOR,
                 "views": 985,
-                "keywords": meta.tags,
+                "keywords": meta.keywords,
                 articleLink,
                 imageLink,
                 imageLink2,
