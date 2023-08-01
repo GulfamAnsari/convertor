@@ -17,6 +17,7 @@ class WebpageCrawler {
                         var title = res.$('title').text();
                         var tags = '';
                         var description = '';
+                        var keywords = '';
 
                         // if tags meta is present
                         for (var index of Object.keys(res.$('a[rel="tag"]'))) {
@@ -37,9 +38,14 @@ class WebpageCrawler {
                                 description = `${res.$('meta')[index].attribs.content}`;
                             }
                         }
+                        for (var index of Object.keys(res.$('meta'))) {
+                            if (res.$('meta')[index] && res.$('meta')[index].attribs && res.$('meta')[index].attribs.name && res.$('meta')[index].attribs.name == 'keywords') {
+                                keywords = `${res.$('meta')[index].attribs.content}`;
+                            }
+                        }
                         const data = {
                             htmlData: $('.entry-content').html(), 
-                            meta:  { title, tags, description }
+                            meta:  { title, tags, description, keywords }
                         };
                         resolve(data);
                     }

@@ -11,6 +11,8 @@ var imageDownloader = new ImageDownloader();
 var webpageCrawler = new WebpageCrawler();
 var logs = new Logs();
 const jsdom = require("jsdom");
+const { IMAGE_RESOLUTION_FACTOR } = require("./constants");
+const axios = require('axios');
 
 
 const SPLITTED_URL = CONSTANTS.IMAGES_WEBPAGE_URL.split('/');
@@ -138,8 +140,8 @@ function replaceSrcDataSrc(string, imageList) {
     string = string.replaceAll(/height="([0-9]+)"/g, '');
     string = string.replaceAll(/width="([0-9]+)"/g, '');
     for (var imgObject of Object.values(imageList)) {
-        let width = Math.floor(imgObject.width / 1.5);
-        let height =  Math.floor(imgObject.height / 1.5);
+        let width = Math.floor(imgObject.width / IMAGE_RESOLUTION_FACTOR);
+        let height =  Math.floor(imgObject.height / IMAGE_RESOLUTION_FACTOR);
 
         const png = imgObject.name.split(".")[0] + ".png";
         const jpg = imgObject.name.split(".")[0] + ".jpg";
@@ -213,7 +215,7 @@ function replaceArticleText(htmlData, meta) {
 
     replace({
         regex: 'alt=""',
-        replacement: `alt="${CONSTANTS.FOCUS_KEYWORD}"`,
+        replacement: `alt="${TOP_IMAGE_NAME}"`,
         paths: [`${destination || SOURCE_PATH}/article.php`],
         recursive: true,
         silent: true,

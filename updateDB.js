@@ -12,7 +12,7 @@ class UpdateDB {
     constructor() {
         webpageCrawler.crawlHtmlFromWebpage(CONSTANTS.IMAGES_WEBPAGE_URL).then((data) => {
             this.createDbObject(data.htmlData, data.meta).then((DbObject) => {
-                this.addArticleOnRemoteDb({ data: JSON.stringify(DbObject) }).then((remoteStatus) => {
+                this.addArticleOnRemoteDb(DbObject).then((remoteStatus) => {
                     logs.display('DB Update Successfully ' + remoteStatus, 'green', true);
                 }, (error) => { logs.display('Error while add article on remote db ' + error, 'green', true); })
             }, (error) => { logs.display('Error while creating object ' + error, 'green', true); })
@@ -65,25 +65,17 @@ class UpdateDB {
         })
     }
 
-    addArticleOnRemoteDb(dbObject) {
-
+    addArticleOnRemoteDb = (dbObject) => {
         return new Promise((resolve, reject) => {
-
-            const options = {
-                method: "POST",
-                url: "https://droidtechknow.com/admin/api/addArticle.php",
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                },
-                formData: dbObject
-            };
-
-            request(options, (err, res, body) => {
-                if (err) reject(err);
-                resolve(body)
-            });
+            utils.post("https://droidtechknow.com/admin/api/addArticle.php", dbObject)
+                .then((data) => {
+                    console.log(data);
+                    resolve(data)
+                }).catch((err) => { console.log(err); reject(err) })
         });
     }
+
+
 }
 
 module.exports = UpdateDB;

@@ -1,14 +1,17 @@
 module.exports = {
     KEY: 'sb2234%42987@23',
-    FOCUS_KEYWORD: 'vingo',
-    IMAGES_WEBPAGE_URL: 'https://droidtechknow.com/admin/wordpress/2022/07/15/get-the-vingo-app-for-better-tracking-of-your-activity/',
-    AUTHOR: 'Sponsored Post',
-    ARTICLE_DATA: 'July 15, 2022',
+    FOCUS_KEYWORD: 'tools-to-view-old-version-of-any-website',
+    IMAGES_WEBPAGE_URL: 'https://droidtechknow.com/admin/wordpress/2023/07/24/tools-to-view-old-versions-of-any-website/',
+    AUTHOR: 'Abhishek',
+    ARTICLE_DATA: 'Aug 01, 2023',
     CATAGORY: 'top-things',
     SUBCATAGORY: '',
-    ANDROID_DOWNLOAD: 'Download for Android',
-    IOS_DOWNLOAD: 'Download for IOS',
-    FLIPKART_BUY: '',
-    AMAZON_BUY: '',
-    TAGS: ''
-} 
+    ANDROID_DOWNLOAD: 'AndroiDownloadd',
+    IOS_DOWNLOAD: 'iODownloadS',
+    FLIPKART_BUY: 'Buy_Flipkart',
+    AMAZON_BUY: 'Buy_Amazon',
+    TAGS: '',
+    IMAGE_RESOLUTION_FACTOR: 1.5
+}
+
+ 
