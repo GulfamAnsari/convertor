@@ -18,7 +18,7 @@ class ImageDownloader {
             logs.display(`Invalid URL: ${images[index]}`, 'red', false );
           }
         }
-        logs.display(`Total Image URLS found: ${images.length} 
+        logs.display(`Total Image URLS found: ${images.length}
         \nValid Images URLS: ${validImageURLS.length}
         \nInvalid Images URLS: ${images.length - validImageURLS.length}\n`, 'cyan', false);
         // logs.display(validImageURLS, 'cyan', false)// All images urls in an array
